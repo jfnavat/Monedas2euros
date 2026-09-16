@@ -230,7 +230,31 @@
 
 
         function fallbackLocalSave(coinData) { persistData(); document.getElementById("admin-form").style.display = "none"; renderApp(); showLoading(false); }
-        function deleteCoin(id) { if (!confirm("¿Eliminar moneda?")) return; showLoading(true); localCoins = localCoins.filter(function(c){ return c.id !== id; }); persistData(); renderApp(); showLoading(false); }
+
+       function deleteCoin(id) {
+    if (!confirm("¿Eliminar moneda?")) return;
+    showLoading(true);
+    
+    // Pegar aquí la URL exacta que copiaste en el Paso 1
+    var URL_BORRADO = "https://script.google.com/macros/s/AKfycbwdBD12tuhyBbt54hDiJ4gINpMoZBlN77mWxxX1dj4YZgxN9HsESCST7-TiBAjXlPlY2w/exec";
+
+    // 1. Eliminar visualmente de la pantalla al instante
+    localCoins = localCoins.filter(function(c) { return c.id !== id; });
+    persistData();
+    renderApp();
+    showLoading(false);
+
+    // 2. Enviar orden directa de eliminación a la hoja de cálculo
+    if (URL_BORRADO !== "") {
+        fetch(URL_BORRADO + "?action=delete&id=" + id, { 
+            method: "GET", 
+            mode: "no-cors" 
+        }).catch(function(e){ console.log("Sincronizando..."); });
+    }
+}
+
+
+        
         function persistData() { localStorage.setItem("euroNumisData", JSON.stringify(localCoins)); }
         function exportToExcel() { var csvContent = "data:text/csv;charset=utf-8,\uFEFFID;País;Año;Tema;Acuñación;Tipo;Precio (€);Coleccionada;Conservación;Notas\r\n"; localCoins.forEach(function(c){ csvContent += [c.id, '"' + c.country + '"', c.year, '"' + c.theme.replace(/"/g, '""') + '"', c.mintage || 'N/A', c.type, c.price.toFixed(2), c.owned ? "SÍ" : "NO", c.condition || 'UNC', '"' + (c.notes || '').replace(/"/g, '""') + '"'].join(";") + "\r\n"; }); var encodedUri = encodeURI(csvContent); var link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", "Coleccion_EuroNumis.csv"); document.body.appendChild(link); link.click(); document.body.removeChild(link); }
     </script>
