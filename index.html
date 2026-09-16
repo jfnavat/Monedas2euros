@@ -151,17 +151,138 @@
                 container.appendChild(card);
             });
         }
-        function updateCardMeta(id, prop, val) { var index = localCoins.findIndex(function(c){ return c.id === id; }); if (index !== -1) { localCoins[index][prop] = val; persistData(); } }
-        function toggleOwnership(id, chk) { var index = localCoins.findIndex(function(c){ return c.id === id; }); if (index !== -1) { localCoins[index].owned = chk; persistData(); filterCoins(); } }
-        function abrirFormularioNuevo() { document.getElementById("new-coin-form").reset(); document.getElementById("edit-id").value = ""; document.getElementById("edit-image-base64").value = ""; document.getElementById("form-title").textContent = "Añadir Nueva Moneda"; document.getElementById("admin-form").style.display = "block"; window.scrollTo({ top: 0, behavior: 'smooth' }); }
-        function abrirFormularioEditar(id) { var coin = localCoins.find(function(c){ return c.id === id; }); if (!coin) return; document.getElementById("edit-id").value = coin.id; document.getElementById("add-country").value = coin.country; document.getElementById("add-year").value = coin.year; document.getElementById("add-theme").value = coin.theme; document.getElementById("add-mintage").value = coin.mintage || ""; document.getElementById("add-type").value = coin.type; document.getElementById("add-price").value = coin.price; document.getElementById("edit-image-base64").value = coin.image || ""; document.getElementById("form-title").textContent = "Editar Moneda"; document.getElementById("admin-form").style.display = "block"; window.scrollTo({ top: 0, behavior: "smooth" }); }
-        function convertImageToBase64() { var files = document.getElementById("add-image").files; if (files.length === 0) return; var reader = new FileReader(); reader.onload = function(e) { document.getElementById("edit-image-base64").value = e.target.result; }; reader.readAsDataURL(files); }
-        function saveCoin(event) { event.preventDefault(); showLoading(true); var id = document.getElementById("edit-id").value; var isEdit = id && id.trim() !== ""; var currentCoin = isEdit ? localCoins.find(function(c){ return c.id === id; }) : null; var coinData = { id: isEdit ? id : Date.now().toString(), country: document.getElementById("add-country").value.trim(), year: parseInt(document.getElementById("add-year").value), theme: document.getElementById("add-theme").value.trim(), mintage: document.getElementById("add-mintage").value ? parseInt(document.getElementById("add-mintage").value) : "", type: document.getElementById("add-type").value, price: parseFloat(document.getElementById("add-price").value) || 0, image: document.getElementById("edit-image-base64").value, owned: isEdit ? currentCoin.owned : false, condition: isEdit ? currentCoin.condition : "UNC", notes: isEdit ? currentCoin.notes : "" }; if (isEdit) { var index = localCoins.findIndex(function(c){ return c.id === id; }); if (index !== -1) localCoins[index] = coinData; } else { localCoins.push(coinData); } if (SCRIPT_URL !== "") { fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(coinData) }).then(function(){ document.getElementById("admin-form").style.display = "none"; inicializarApp(); }).catch(function(){ fallbackLocalSave(coinData); }); } else { fallbackLocalSave(coinData); } }
-        function fallbackLocalSave(coinData) { persistData(); document.getElementById("admin-form").style.display = "none"; renderApp(); showLoading(false); }
-        function deleteCoin(id) { if (!confirm("¿Eliminar moneda?")) return; showLoading(true); localCoins = localCoins.filter(function(c){ return c.id !== id; }); persistData(); renderApp(); showLoading(false); }
-        function persistData() { localStorage.setItem("euroNumisData", JSON.stringify(localCoins)); }
-        function exportToExcel() { var csvContent = "data:text/csv;charset=utf-8,\uFEFFID;País;Año;Tema;Acuñación;Tipo;Precio (€);Coleccionada;Conservación;Notas\r\n"; localCoins.forEach(function(c){ csvContent += [c.id, '"' + c.country + '"', c.year, '"' + c.theme.replace(/"/g, '""') + '"', c.mintage || 'N/A', c.type, c.price.toFixed(2), c.owned ? "SÍ" : "NO", c.condition || 'UNC', '"' + (c.notes || '').replace(/"/g, '""') + '"'].join(";") + "\r\n"; }); var encodedUri = encodeURI(csvContent); var link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", "Coleccion_EuroNumis.csv"); document.body.appendChild(link); link.click(); document.body.removeChild(link); }
-    </script>
+        function updateCardMeta(id, prop, val) {
+    var index = localCoins.findIndex(function(c) { return c.id === id; });
+    if (index !== -1) {
+        localCoins[index][prop] = val;
+        persistData();
+    }
+}
+
+function toggleOwnership(id, chk) {
+    var index = localCoins.findIndex(function(c) { return c.id === id; });
+    if (index !== -1) {
+        localCoins[index].owned = chk;
+        persistData();
+        filterCoins();
+    }
+}
+
+function abrirFormularioNuevo() {
+    document.getElementById("new-coin-form").reset();
+    document.getElementById("edit-id").value = "";
+    document.getElementById("edit-image-base64").value = "";
+    document.getElementById("form-title").textContent = "Añadir Nueva Moneda";
+    document.getElementById("admin-form").style.display = "block";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function abrirFormularioEditar(id) {
+    var coin = localCoins.find(function(c) { return c.id === id; });
+    if (!coin) return;
+    document.getElementById("edit-id").value = coin.id;
+    document.getElementById("add-country").value = coin.country;
+    document.getElementById("add-year").value = coin.year;
+    document.getElementById("add-theme").value = coin.theme;
+    document.getElementById("add-mintage").value = coin.mintage || "";
+    document.getElementById("add-type").value = coin.type;
+    document.getElementById("add-price").value = coin.price;
+    document.getElementById("edit-image-base64").value = coin.image || "";
+    document.getElementById("form-title").textContent = "Editar Moneda";
+    document.getElementById("admin-form").style.display = "block";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function convertImageToBase64() {
+    var files = document.getElementById("add-image").files;
+    if (files.length === 0) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById("edit-image-base64").value = e.target.result;
+    };
+    reader.readAsDataURL(files[0]);
+}
+
+function saveCoin(event) {
+    event.preventDefault();
+    showLoading(true);
+    var id = document.getElementById("edit-id").value;
+    var isEdit = id && id.trim() !== "";
+    var currentCoin = isEdit ? localCoins.find(function(c) { return c.id === id; }) : null;
+    
+    var coinData = {
+        id: isEdit ? id : Date.now().toString(),
+        country: document.getElementById("add-country").value.trim(),
+        year: parseInt(document.getElementById("add-year").value),
+        theme: document.getElementById("add-theme").value.trim(),
+        mintage: document.getElementById("add-mintage").value ? parseInt(document.getElementById("add-mintage").value) : "",
+        type: document.getElementById("add-type").value,
+        price: parseFloat(document.getElementById("add-price").value) || 0,
+        image: document.getElementById("edit-image-base64").value,
+        owned: isEdit ? currentCoin.owned : false,
+        condition: isEdit ? currentCoin.condition : "UNC",
+        notes: isEdit ? currentCoin.notes : ""
+    };
+    
+    if (isEdit) {
+        var index = localCoins.findIndex(function(c) { return c.id === id; });
+        if (index !== -1) localCoins[index] = coinData;
+    } else {
+        localCoins.push(coinData);
+    }
+    
+    if (SCRIPT_URL !== "") {
+        fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(coinData) })
+        .then(function() {
+            document.getElementById("admin-form").style.display = "none";
+            inicializarApp();
+        })
+        .catch(function() {
+            fallbackLocalSave(coinData);
+        });
+    } else {
+        fallbackLocalSave(coinData);
+    }
+}
+
+function fallbackLocalSave(coinData) {
+    persistData();
+    document.getElementById("admin-form").style.display = "none";
+    renderApp();
+    showLoading(false);
+}
+
+function deleteCoin(id) {
+    if (!confirm("¿Eliminar moneda?")) return;
+    showLoading(true);
+    localCoins = localCoins.filter(function(c) { return c.id !== id; });
+    persistData();
+    renderApp();
+    showLoading(false);
+}
+
+function persistData() {
+    localStorage.setItem("euroNumisData", JSON.stringify(localCoins));
+}
+
+function exportToExcel() {
+    var csvContent = "data:text/csv;charset=utf-8,\uFEFFID;País;Año;Tema;Acuñación;Tipo;Precio (€);Coleccionada;Conservación;Notas\r\n";
+    localCoins.forEach(function(c) {
+        csvContent += [c.id, '"' + c.country + '"', c.year, '"' + c.theme.replace(/"/g, '""') + '"', c.mintage || 'N/A', c.type, c.price.toFixed(2), c.owned ? "SÍ" : "NO", c.condition || 'UNC', '"' + (c.notes || '').replace(/"/g, '""') + '"'].join(";") + "\r\n";
+    });
+    var encodedUri = encodeURI(csvContent);
+    var link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "Coleccion_EuroNumis.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+</body>
+</html>
+
+        </script>
 </body>
 </html>
 
