@@ -123,9 +123,11 @@
             showLoading(false); 
         }).obtenerMonedas();
     } else if (SCRIPT_URL !== "") {
-        fetch(SCRIPT_URL, { mode: "no-cors" })
-            .then(function() { cargarRespaldoLocal(); })
-            .catch(function() { cargarRespaldoLocal(); });
+        cargarRespaldoLocal();
+if (SCRIPT_URL !== "") {
+    fetch(SCRIPT_URL, { mode: "no-cors" });
+}
+
     } else { 
         cargarRespaldoLocal(); 
     }
