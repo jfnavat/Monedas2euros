@@ -101,7 +101,7 @@
     </section>
     <main class="coins-grid" id="coins-container"></main>
     <script>
-        var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwdBD12tuhyBbt54hDiJ4gINpMoZBlN77mWxxX1dj4YZgxN9HsESCST7-TiBAjXlPlY2w/exec";
+        var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwv1_Azq16p1UsvisBeIUF7HOMIk_eTrK-iM0MnGMBv2_A55Op_ZTEaNlg9trgS5coeEA/exec";
         
         var localCoins = [
             { id: "1", country: "España", year: 2005, theme: "IV Centenario de Don Quijote", mintage: 8000000, type: "conmemorativa", price: 3.50, image: "", owned: true, condition: "VF", notes: "Primera de España" },
@@ -231,26 +231,27 @@
 
         function fallbackLocalSave(coinData) { persistData(); document.getElementById("admin-form").style.display = "none"; renderApp(); showLoading(false); }
 
-       function deleteCoin(id) {
+      function deleteCoin(id) {
     if (!confirm("¿Eliminar moneda?")) return;
     showLoading(true);
     
-    // Pegar aquí la URL exacta que copiaste en el Paso 1
-    var URL_BORRADO = "https://script.google.com/macros/s/AKfycbwdBD12tuhyBbt54hDiJ4gINpMoZBlN77mWxxX1dj4YZgxN9HsESCST7-TiBAjXlPlY2w/exec";
-
     // 1. Eliminar visualmente de la pantalla al instante
     localCoins = localCoins.filter(function(c) { return c.id !== id; });
     persistData();
     renderApp();
     showLoading(false);
 
-    // 2. Enviar orden directa de eliminación a la hoja de cálculo
-    if (URL_BORRADO !== "") {
-        fetch(URL_BORRADO + "?action=delete&id=" + id, { 
-            method: "GET", 
-            mode: "no-cors" 
-        }).catch(function(e){ console.log("Sincronizando..."); });
+    // 2. Enviar orden de eliminación forzada mediante método POST seguro
+    if (SCRIPT_URL !== "") {
+        fetch(SCRIPT_URL, { 
+            method: "POST", 
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "delete", id: id })
+        }).catch(function(e){ console.log("Sincronizando borrado..."); });
     }
+}
+
 }
 
 
