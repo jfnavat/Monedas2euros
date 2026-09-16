@@ -227,33 +227,18 @@ function saveCoin(event) {
         localCoins.push(coinData); 
     } 
     
-    // 1. Guardar y mostrar de inmediato en la pantalla local
     persistData(); 
     document.getElementById("admin-form").style.display = "none"; 
     renderApp(); 
     showLoading(false); 
 
-    // 2. Enviar a Google Sheets usando un formato de formulario nativo (evita recortes de texto largo)
     if (SCRIPT_URL !== "") { 
-        var formData = new URLSearchParams();
-        formData.append("id", coinData.id);
-        formData.append("country", coinData.country);
-        formData.append("year", coinData.year);
-        formData.append("theme", coinData.theme);
-        formData.append("mintage", coinData.mintage);
-        formData.append("type", coinData.type);
-        formData.append("price", coinData.price);
-        formData.append("image", coinData.image); // Envía la foto de forma segura
-        formData.append("owned", coinData.owned ? "SÍ" : "NO");
-        formData.append("condition", coinData.condition);
-        formData.append("notes", coinData.notes);
-
         fetch(SCRIPT_URL, { 
             method: "POST", 
-            mode: "no-cors",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: formData.toString()
-        }).catch(function(e){ console.log("Sincronizando imagen..."); });
+            mode: "no-cors", 
+            headers: { "Content-Type": "application/json" }, 
+            body: JSON.stringify(coinData) 
+        }).catch(function(e){});
     } 
 }
 
