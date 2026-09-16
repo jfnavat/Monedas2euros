@@ -111,18 +111,25 @@
         window.addEventListener("DOMContentLoaded", function() { inicializarApp(); });
         function showLoading(show) { document.getElementById("loading").style.display = show ? "flex" : "none"; }
         function inicializarApp() {
-            showLoading(true);
-            if (typeof google !== "undefined" && google.script && google.script.run) {
-                google.script.run.withSuccessHandler(function(data){ if (data && data.length > 0) localCoins = data; renderApp(); showLoading(false); }).withFailureHandler(function(){ renderApp(); showLoading(false); }).obtenerMonedas();
-            } if (SCRIPT_URL !== "") {
-    fetch(SCRIPT_URL, { mode: "no-cors" })
-    .then(function() { cargarRespaldoLocal(); })
-    .catch(function() { cargarRespaldoLocal(); });
-
-    setTimeout(function(){ inicializarApp(); }, 1000);
+    showLoading(true);
+    if (typeof google !== "undefined" && google.script && google.script.run) {
+        google.script.run.withSuccessHandler(function(data){ 
+            if (data && data.length > 0) localCoins = data; 
+            renderApp(); 
+            showLoading(false); 
+        }).withFailureHandler(function(){ 
+            renderApp(); 
+            showLoading(false); 
+        }).obtenerMonedas();
+    } else if (SCRIPT_URL !== "") {
+        fetch(SCRIPT_URL, { mode: "no-cors" })
+            .then(function() { cargarRespaldoLocal(); })
+            .catch(function() { cargarRespaldoLocal(); });
+    } else { 
+        cargarRespaldoLocal(); 
+    }
 }
-            } else { cargarRespaldoLocal(); }
-        }
+
         function cargarRespaldoLocal() { var saved = localStorage.getItem("euroNumisData"); if (saved) localCoins = JSON.parse(saved); renderApp(); showLoading(false); }
         function renderApp() { populateFilterOptions(); filterCoins(); }
         function populateFilterOptions() {
