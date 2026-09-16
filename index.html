@@ -231,13 +231,14 @@ function saveCoin(event) {
         localCoins.push(coinData); 
     } 
     
-   if (SCRIPT_URL !== "") { 
+      if (SCRIPT_URL !== "") { 
         fetch(SCRIPT_URL, { 
             method: "POST", 
             mode: "no-cors", 
             headers: { "Content-Type": "application/json" }, 
             body: JSON.stringify(coinData) 
         }); 
+        localCoins.push(coinData);
         persistData(); 
         document.getElementById("admin-form").style.display = "none"; 
         renderApp(); 
