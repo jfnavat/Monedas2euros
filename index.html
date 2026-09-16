@@ -107,17 +107,44 @@
         function showLoading(show) { document.getElementById("loading").style.display = show ? "flex" : "none"; }
 
         function inicializarApp() {
-            showLoading(true);
-            var saved = localStorage.getItem("euroNumisData");
-            if (saved) {
-                localCoins = JSON.parse(saved);
-            }
-            renderApp();
+    showLoading(true);
+    
+    // 1. Cargar el respaldo local rápido para que la pantalla no aparezca vacía mientras se conecta a internet
+    var saved = localStorage.getItem("euroNumisData");
+    if (saved) { localCoins = JSON.parse(saved); }
+    renderApp();
+
+    // 2. Conectarse a Google Sheets en tiempo real para traer las monedas desde cualquier computadora
+    if (SCRIPT_URL !== "") {
+        var urlLectura = SCRIPT_URL + "?action=read";
+        
+        // Usamos un script invisible para saltarnos el bloqueo CORS de Google de forma definitiva
+        var script = document.createElement("script");
+        script.src = urlLectura + "&callback=handleGoogleSheetsData";
+        
+        // Si Google tarda en responder o no hay internet, se queda con la copia local de la PC
+        var timeoutUrl = setTimeout(function() {
             showLoading(false);
-            if (SCRIPT_URL !== "") {
-                fetch(SCRIPT_URL, { mode: "no-cors" }).catch(function(e){});
+            document.body.removeChild(script);
+        }, 5000);
+        
+        window.handleGoogleSheetsData = function(data) {
+            clearTimeout(timeoutUrl);
+            if (data && data.length > 0) {
+                localCoins = data;
+                persistData(); // Sincroniza la PC actual con la nube
+                renderApp();   // Dibuja las monedas de la nube en la pantalla
             }
-        }
+            showLoading(false);
+            try { document.body.removeChild(script); } catch(e){}
+        };
+        
+        document.body.appendChild(script);
+    } else {
+        showLoading(false);
+    }
+}
+
 
         function renderApp() { populateFilterOptions(); filterCoins(); }
 
