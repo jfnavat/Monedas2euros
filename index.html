@@ -115,6 +115,8 @@
             { id: "2", country: "Francia", year: 2024, theme: "Juegos Olímpicos de París 2024", mintage: 24000000, type: "conmemorativa", price: 2.50, image: "", owned: false, condition: "UNC", notes: "Falta conseguir" },
             { id: "3", country: "Alemania", year: 2006, theme: "Puerta de Brandenburgo", mintage: 30000000, type: "regular", price: 2.00, image: "", owned: true, condition: "XF", notes: "Serie común" }
         ];
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxH7McoA7SvI3XnkRr-gjIRXw9xf6857-R6AT9GvMZZjUPzIYwfVS3w2k-LDKvHsqAgvQ/exec";
+
         window.addEventListener('DOMContentLoaded', () => { inicializarApp(); });
         function showLoading(show) { document.getElementById('loading').style.display = show ? 'flex' : 'none'; }
         function inicializarApp() {
