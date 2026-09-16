@@ -101,7 +101,7 @@
     <main class="coins-grid" id="coins-container"></main>
     <script>
         var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyQviK1on_OANzPH7-inEmXO2UpcuBRdfmQbY8Jdctm09Skf5ZyDsGpWZMuqVOTLzLuBw/exec";
-
+        let coinData; // Declaración global
         var localCoins = [
             { id: "1", country: "España", year: 2005, theme: "IV Centenario de Don Quijote", mintage: 8000000, type: "conmemorativa", price: 3.50, image: "", owned: true, condition: "VF", notes: "Primera de España" },
             { id: "2", country: "Francia", year: 2024, theme: "Juegos Olímpicos de París 2024", mintage: 24000000, type: "conmemorativa", price: 2.50, image: "", owned: false, condition: "UNC", notes: "Falta conseguir" },
@@ -121,20 +121,12 @@
             renderApp(); 
             showLoading(false); 
         }).obtenerMonedas();
-    } if (SCRIPT_URL !== "") {
-        fetch(SCRIPT_URL, { 
-            method: "POST", 
-            mode: "no-cors", 
-            headers: { "Content-Type": "application/json" }, 
-            body: JSON.stringify(coinData) 
-        });
-        // Forzar guardado local inmediato para que lo veas en pantalla mientras viaja a la nube
-        persistData();
-        document.getElementById("admin-form").style.display = "none";
-        renderApp();
-        showLoading(false);
+    } else if (SCRIPT_URL !== "") {
+        fetch(SCRIPT_URL, { mode: "no-cors" })
+            .then(function() { cargarRespaldoLocal(); })
+            .catch(function() { cargarRespaldoLocal(); });
     } else { 
-        fallbackLocalSave(coinData); 
+        cargarRespaldoLocal(); 
     }
 }
 
@@ -145,90 +137,94 @@ function cargarRespaldoLocal() {
     showLoading(false); 
 }
 
-        function renderApp() { populateFilterOptions(); filterCoins(); }
-        function populateFilterOptions() {
-            var countrySelect = document.getElementById("filter-country"); var yearSelect = document.getElementById("filter-year");
-            var currentCountry = countrySelect.value; var currentYear = yearSelect.value;
-            countrySelect.innerHTML = "<option value=''>Todos los países</option>"; yearSelect.innerHTML = "<option value=''>Todos los años</option>";
-            var countries = []; var years = [];
-            localCoins.forEach(function(c){ if (countries.indexOf(c.country) === -1) countries.push(c.country); if (years.indexOf(c.year) === -1) years.push(c.year); });
-            countries.sort(); years.sort(function(a,b){ return b-a; });
-            countries.forEach(function(c){ const opt = document.createElement("option"); opt.value = opt.textContent = c; countrySelect.appendChild(opt); });
-            years.forEach(function(y){ const opt = document.createElement("option"); opt.value = opt.textContent = y; yearSelect.appendChild(opt); });
-            countrySelect.value = currentCountry; yearSelect.value = currentYear;
-        }
-        function filterCoins() {
-            var searchText = document.getElementById("search-theme").value.toLowerCase(); var countryFilter = document.getElementById("filter-country").value; var yearFilter = document.getElementById("filter-year").value; var statusFilter = document.getElementById("filter-status").value;
-            var filtered = localCoins.filter(function(coin){
-                var matchText = coin.theme.toLowerCase().indexOf(searchText) !== -1 || coin.country.toLowerCase().indexOf(searchText) !== -1; var matchCountry = !countryFilter || coin.country === countryFilter; var matchYear = !yearFilter || coin.year.toString() === yearFilter; var matchStatus = !statusFilter || (statusFilter === "owned" ? coin.owned : !coin.owned); return matchText && matchCountry && matchYear && matchStatus;
-            });
-            renderGrid(filtered); calculateStats();
-        }
-        function calculateStats() {
-            var ownedCoins = localCoins.filter(function(c){ return c.owned; }); document.getElementById("stat-count").textContent = ownedCoins.length; document.getElementById("stat-total").textContent = localCoins.length;
-            var totalValue = ownedCoins.reduce(function(acc,curr){ return acc + (parseFloat(curr.price) || 0); }, 0); document.getElementById("stat-value").textContent = totalValue.toFixed(2) + " €";
-        }
-        function renderGrid(coins) {
-            var container = document.getElementById("coins-container"); container.innerHTML = "";
-            if (coins.length === 0) { container.innerHTML = "<div style='grid-column:1/-1;text-align:center;padding:40px;color:#64748b;'>No hay monedas.</div>"; return; }
-            coins.forEach(function(coin){
-                var card = document.createElement("article"); card.className = "coin-card " + (coin.owned ? "" : "not-owned");
-                var imgHTML = coin.image ? "<img src='" + coin.image + "' alt='" + coin.theme + "'>" : "<span class='no-img-text'>Sin fotografía</span>";
-                var selectUNC = coin.condition === "UNC" ? "selected" : ""; var selectXF = coin.condition === "XF" ? "selected" : ""; var selectVF = coin.condition === "VF" ? "selected" : ""; var checkOwned = coin.owned ? "checked" : "";
-                card.innerHTML = "<div class='coin-img-container'><span class='coin-badge badge-" + coin.type + "'>" + coin.type.toUpperCase() + "</span>" + imgHTML + "</div><div class='coin-info'><div class='coin-country-year'>" + coin.country + " • " + coin.year + "</div><h2 class='coin-theme'>" + coin.theme + "</h2><div class='coin-mintage'>" + (coin.mintage ? "Acuñación: " + parseInt(coin.mintage).toLocaleString() : "Acuñación: N/A") + "</div><div class='coin-meta'><div class='price-tag'>Valor: " + (parseFloat(coin.price) || 0).toFixed(2) + " €</div><div class='meta-box'><label>Conservación</label><select onchange='updateCardMeta(\"" + coin.id + "\", \"condition\", this.value)'><option value='UNC' " + selectUNC + ">UNC</option><option value='XF' " + selectXF + ">XF</option><option value='VF' " + selectVF + ">VF</option></select></div><div class='meta-box'><label>Notas</label><input type='text' value='" + (coin.notes || "") + "' onchange='updateCardMeta(\"" + coin.id + "\", \"notes\", this.value\")'></div><label class='ownership-toggle'><input type='checkbox' " + checkOwned + " onchange='toggleOwnership(\"" + coin.id + "\", this.checked)'><span>¿La tengo?</span></label><div class='card-actions'><button class='btn-edit' onclick='abrirFormularioEditar(\"" + coin.id + "\")'>✏️ Editar</button><button class='btn-danger' onclick='deleteCoin(\"" + coin.id + "\")'>🗑️ Borrar</button></div></div></div>";
-                container.appendChild(card);
-            });
-        }
-        function updateCardMeta(id, prop, val) {
-    var index = localCoins.findIndex(function(c) { return c.id === id; });
-    if (index !== -1) {
-        localCoins[index][prop] = val;
-        persistData();
-    }
+function renderApp() { populateFilterOptions(); filterCoins(); }
+
+function populateFilterOptions() {
+    var countrySelect = document.getElementById("filter-country"); var yearSelect = document.getElementById("filter-year");
+    var currentCountry = countrySelect.value; var currentYear = yearSelect.value;
+    countrySelect.innerHTML = "<option value=''>Todos los países</option>"; yearSelect.innerHTML = "<option value=''>Todos los años</option>";
+    var countries = []; var years = [];
+    localCoins.forEach(function(c){ if (countries.indexOf(c.country) === -1) countries.push(c.country); if (years.indexOf(c.year) === -1) years.push(c.year); });
+    countries.sort(); years.sort(function(a,b){ return b-a; });
+    countries.forEach(function(c){ var opt = document.createElement("option"); opt.value = opt.textContent = c; countrySelect.appendChild(opt); });
+    years.forEach(function(y){ var opt = document.createElement("option"); opt.value = opt.textContent = y; yearSelect.appendChild(opt); });
+    countrySelect.value = currentCountry; yearSelect.value = currentYear;
 }
 
-function toggleOwnership(id, chk) {
-    var index = localCoins.findIndex(function(c) { return c.id === id; });
-    if (index !== -1) {
-        localCoins[index].owned = chk;
-        persistData();
-        filterCoins();
-    }
+function filterCoins() {
+    var searchText = document.getElementById("search-theme").value.toLowerCase(); var countryFilter = document.getElementById("filter-country").value; var yearFilter = document.getElementById("filter-year").value; var statusFilter = document.getElementById("filter-status").value;
+    var filtered = localCoins.filter(function(coin){
+        var matchText = coin.theme.toLowerCase().indexOf(searchText) !== -1 || coin.country.toLowerCase().indexOf(searchText) !== -1; var matchCountry = !countryFilter || coin.country === countryFilter; var matchYear = !yearFilter || coin.year.toString() === yearFilter; var matchStatus = !statusFilter || (statusFilter === "owned" ? coin.owned : !coin.owned); return matchText && matchCountry && matchYear && matchStatus;
+    });
+    renderGrid(filtered); calculateStats();
 }
 
-function abrirFormularioNuevo() {
-    document.getElementById("new-coin-form").reset();
-    document.getElementById("edit-id").value = "";
-    document.getElementById("edit-image-base64").value = "";
-    document.getElementById("form-title").textContent = "Añadir Nueva Moneda";
-    document.getElementById("admin-form").style.display = "block";
-    window.scrollTo({ top: 0, behavior: "smooth" });
+function calculateStats() {
+    var ownedCoins = localCoins.filter(function(c){ return c.owned; }); document.getElementById("stat-count").textContent = ownedCoins.length; document.getElementById("stat-total").textContent = localCoins.length;
+    var totalValue = ownedCoins.reduce(function(acc,curr){ return acc + (parseFloat(curr.price) || 0); }, 0); document.getElementById("stat-value").textContent = totalValue.toFixed(2) + " €";
 }
 
-function abrirFormularioEditar(id) {
-    var coin = localCoins.find(function(c) { return c.id === id; });
-    if (!coin) return;
-    document.getElementById("edit-id").value = coin.id;
-    document.getElementById("add-country").value = coin.country;
-    document.getElementById("add-year").value = coin.year;
-    document.getElementById("add-theme").value = coin.theme;
-    document.getElementById("add-mintage").value = coin.mintage || "";
-    document.getElementById("add-type").value = coin.type;
-    document.getElementById("add-price").value = coin.price;
-    document.getElementById("edit-image-base64").value = coin.image || "";
-    document.getElementById("form-title").textContent = "Editar Moneda";
-    document.getElementById("admin-form").style.display = "block";
-    window.scrollTo({ top: 0, behavior: "smooth" });
+function renderGrid(coins) {
+    var container = document.getElementById("coins-container"); container.innerHTML = "";
+    if (coins.length === 0) { container.innerHTML = "<div style='grid-column:1/-1;text-align:center;padding:40px;color:#64748b;'>No hay monedas.</div>"; return; }
+    coins.forEach(function(coin){
+        var card = document.createElement("article"); card.className = "coin-card " + (coin.owned ? "" : "not-owned");
+        var imgHTML = coin.image ? "<img src='" + coin.image + "' alt='" + coin.theme + "'>" : "<span class='no-img-text'>Sin fotografía</span>";
+        var selectUNC = coin.condition === "UNC" ? "selected" : ""; var selectXF = coin.condition === "XF" ? "selected" : ""; var selectVF = coin.condition === "VF" ? "selected" : ""; var checkOwned = coin.owned ? "checked" : "";
+        card.innerHTML = "<div class='coin-img-container'><span class='coin-badge badge-" + coin.type + "'>" + coin.type.toUpperCase() + "</span>" + imgHTML + "</div><div class='coin-info'><div class='coin-country-year'>" + coin.country + " • " + coin.year + "</div><h2 class='coin-theme'>" + coin.theme + "</h2><div class='coin-mintage'>" + (coin.mintage ? "Acuñación: " + parseInt(coin.mintage).toLocaleString() : "Acuñación: N/A") + "</div><div class='coin-meta'><div class='price-tag">Valor: " + (parseFloat(coin.price) || 0).toFixed(2) + " €</div><div class='meta-box'><label>Conservación</label><select onchange='updateCardMeta(\"" + coin.id + "\", \"condition\", this.value)'><option value='UNC' " + selectUNC + ">UNC</option><option value='XF' " + selectXF + ">XF</option><option value='VF' " + selectVF + ">VF</option></select></div><div class='meta-box'><label>Notas</label><input type='text' value='" + (coin.notes || "") + "' onchange='updateCardMeta(\"" + coin.id + "\", \"notes\", this.value\")'></div><label class='ownership-toggle'><input type='checkbox' " + checkOwned + " onchange='toggleOwnership(\"" + coin.id + "\", this.checked)'><span>¿La tengo?</span></label><div class='card-actions'><button class='btn-edit' onclick='abrirFormularioEditar(\"" + coin.id + "\")'>✏️ Editar</button><button class='btn-danger' onclick='deleteCoin(\"" + coin.id + "\")'>🗑️ Borrar</button></div></div></div>";
+        container.appendChild(card);
+    });
 }
 
-function convertImageToBase64() {
-    var files = document.getElementById("add-image").files;
-    if (files.length === 0) return;
-    var reader = new FileReader();
-    reader.onload = function(e) {
-        document.getElementById("edit-image-base64").value = e.target.result;
-    };
-    reader.readAsDataURL(files[0]);
+function updateCardMeta(id, prop, val) { var index = localCoins.findIndex(function(c){ return c.id === id; }); if (index !== -1) { localCoins[index][prop] = val; persistData(); } }
+defineCoin = function(id) { return localCoins.find(function(c){ return c.id === id; }); };
+function toggleOwnership(id, chk) { var index = localCoins.findIndex(function(c){ return c.id === id; }); if (index !== -1) { localCoins[index].owned = chk; persistData(); filterCoins(); } }
+function abrirFormularioNuevo() { document.getElementById("new-coin-form").reset(); document.getElementById("edit-id").value = ""; document.getElementById("edit-image-base64").value = ""; document.getElementById("form-title").textContent = "Añadir Nueva Moneda"; document.getElementById("admin-form").style.display = "block"; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+function abrirFormularioEditar(id) { var coin = localCoins.find(function(c){ return c.id === id; }); if (!coin) return; document.getElementById("edit-id").value = coin.id; document.getElementById("add-country").value = coin.country; document.getElementById("add-year").value = coin.year; document.getElementById("add-theme").value = coin.theme; document.getElementById("add-mintage").value = coin.mintage || ""; document.getElementById("add-type").value = coin.type; document.getElementById("add-price").value = coin.price; document.getElementById("edit-image-base64").value = coin.image || ""; document.getElementById("form-title").textContent = "Editar Moneda"; document.getElementById("admin-form").style.display = "block"; window.scrollTo({ top: 0, behavior: "smooth" }); }
+function convertImageToBase64() { var files = document.getElementById("add-image").files; if (files.length === 0) return; var reader = new FileReader(); reader.onload = function(e) { document.getElementById("edit-image-base64").value = e.target.result; }; reader.readAsDataURL(files); }
+
+function saveCoin(event) { 
+    event.preventDefault(); 
+    showLoading(true); 
+    var id = document.getElementById("edit-id").value; 
+    var isEdit = id && id.trim() !== ""; 
+    var currentCoin = isEdit ? localCoins.find(function(c){ return c.id === id; }) : null; 
+    
+    var coinData = { 
+        id: isEdit ? id : Date.now().toString(), 
+        country: document.getElementById("add-country").value.trim(), 
+        year: parseInt(document.getElementById("add-year").value), 
+        theme: document.getElementById("add-theme").value.trim(), 
+        mintage: document.getElementById("add-mintage").value ? parseInt(document.getElementById("add-mintage").value) : "", 
+        type: document.getElementById("add-type").value, 
+        price: parseFloat(document.getElementById("add-price").value) || 0, 
+        image: document.getElementById("edit-image-base64").value, 
+        owned: isEdit ? currentCoin.owned : false, 
+        condition: isEdit ? currentCoin.condition : "UNC", 
+        notes: isEdit ? currentCoin.notes : "" 
+    }; 
+    
+    if (isEdit) { 
+        var index = localCoins.findIndex(function(c){ return c.id === id; }); 
+        if (index !== -1) localCoins[index] = coinData; 
+    } else { 
+        localCoins.push(coinData); 
+    } 
+    
+    if (SCRIPT_URL !== "") { 
+        fetch(SCRIPT_URL, { 
+            method: "POST", 
+            mode: "no-cors", 
+            headers: { "Content-Type": "application/json" }, 
+            body: JSON.stringify(coinData) 
+        }); 
+        persistData(); 
+        document.getElementById("admin-form").style.display = "none"; 
+        renderApp(); 
+        showLoading(false); 
+    } else { 
+        fallbackLocalSave(coinData); 
+    } 
 }
 
 function saveCoin(event) {
