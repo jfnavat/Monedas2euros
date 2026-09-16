@@ -115,8 +115,10 @@
             if (typeof google !== "undefined" && google.script && google.script.run) {
                 google.script.run.withSuccessHandler(function(data){ if (data && data.length > 0) localCoins = data; renderApp(); showLoading(false); }).withFailureHandler(function(){ renderApp(); showLoading(false); }).obtenerMonedas();
             } if (SCRIPT_URL !== "") {
-    fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(coinData) });
-    document.getElementById("admin-form").style.display = "none";
+    fetch(SCRIPT_URL, { mode: "no-cors" })
+    .then(function() { cargarRespaldoLocal(); })
+    .catch(function() { cargarRespaldoLocal(); });
+
     setTimeout(function(){ inicializarApp(); }, 1000);
 }
             } else { cargarRespaldoLocal(); }
