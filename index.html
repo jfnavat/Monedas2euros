@@ -101,6 +101,7 @@
     <main class="coins-grid" id="coins-container"></main>
     <script>
         var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzzsZAU0By1pPU8TG5_hrlNjlUVMQjZADFJrFuH3bAGq7JK66dprlxU6pL7Gfu3kan8DA/exec";
+        var localCoins = [];
 
         window.addEventListener("DOMContentLoaded", function() { inicializarApp(); });
         function showLoading(show) { document.getElementById("loading").style.display = show ? "flex" : "none"; }
