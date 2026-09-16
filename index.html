@@ -158,17 +158,29 @@
             years.forEach(function(y){ var opt = document.createElement("option"); opt.value = opt.textContent = y; yearSelect.appendChild(opt); });
             countrySelect.value = currentCountry; yearSelect.value = currentYear;
         }
+
         function filterCoins() {
-            var searchText = document.getElementById("search-theme").value.toLowerCase(); var countryFilter = document.getElementById("filter-country").value; var yearFilter = document.getElementById("filter-year").value; var statusFilter = document.getElementById("filter-status").value;
-            var filtered = localCoins.filter(function(coin){
-                var matchText = coin.theme.toLowerCase().indexOf(searchText) !== -1 || coin.country.toLowerCase().indexOf(searchText) !== -1; 
-                var matchCountry = countryFilter === "" || coin.country === countryFilter; 
-                var matchYear = yearFilter === "" || coin.year.toString() === yearFilter; 
-                var matchStatus = statusFilter === "" || (statusFilter === "owned" ? coin.owned : !coin.owned); 
-                return matchText && matchCountry && matchYear && matchStatus;
-            });
-            renderGrid(filtered); calculateStats();
-        }
+    var searchText = document.getElementById("search-theme").value.toLowerCase(); 
+    var countryFilter = document.getElementById("filter-country").value; 
+    var yearFilter = document.getElementById("filter-year").value; 
+    var statusFilter = document.getElementById("filter-status").value;
+    
+    var filtered = localCoins.filter(function(coin){
+        // Convierte el tema y país a texto estrictamente para evitar que celdas vacías o números rompan la web
+        var temaTxt = (coin.theme || "").toString().toLowerCase();
+        var paisTxt = (coin.country || "").toString().toLowerCase();
+        
+        var matchText = temaTxt.indexOf(searchText) !== -1 || paisTxt.indexOf(searchText) !== -1; 
+        var matchCountry = countryFilter === "" || (coin.country || "").toString() === countryFilter; 
+        var matchYear = yearFilter === "" || (coin.year || "").toString() === yearFilter; 
+        var matchStatus = statusFilter === "" || (statusFilter === "owned" ? coin.owned : !coin.owned); 
+        
+        return matchText && matchCountry && matchYear && matchStatus;
+    });
+    renderGrid(filtered); 
+    calculateStats();
+}
+
 
         function calculateStats() {
             var ownedCoins = localCoins.filter(function(c){ return c.owned; }); document.getElementById("stat-count").textContent = ownedCoins.length; document.getElementById("stat-total").textContent = localCoins.length;
