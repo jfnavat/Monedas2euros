@@ -155,12 +155,24 @@ function populateFilterOptions() {
 }
 
 function filterCoins() {
-    var searchText = document.getElementById("search-theme").value.toLowerCase(); var countryFilter = document.getElementById("filter-country").value; var yearFilter = document.getElementById("filter-year").value; var statusFilter = document.getElementById("filter-status").value;
+    var searchText = document.getElementById("search-theme").value.toLowerCase(); 
+    var countryFilter = document.getElementById("filter-country").value; 
+    var yearFilter = document.getElementById("filter-year").value; 
+    var statusFilter = document.getElementById("filter-status").value;
+    
     var filtered = localCoins.filter(function(coin){
-        var matchText = coin.theme.toLowerCase().indexOf(searchText) !== -1 || coin.country.toLowerCase().indexOf(searchText) !== -1; var matchCountry = !countryFilter || coin.country === countryFilter; var matchYear = !yearFilter || coin.year.toString() === yearFilter; var matchStatus = !statusFilter || (statusFilter === "owned" ? coin.owned : !coin.owned); return matchText && matchCountry && matchYear && matchStatus;
+        var matchText = coin.theme.toLowerCase().indexOf(searchText) !== -1 || coin.country.toLowerCase().indexOf(searchText) !== -1; 
+        // CORRECCIÓN: Si el filtro está vacío (""), no debe bloquear la moneda
+        var matchCountry = countryFilter === "" || coin.country === countryFilter; 
+        var matchYear = yearFilter === "" || coin.year.toString() === yearFilter; 
+        var matchStatus = statusFilter === "" || (statusFilter === "owned" ? coin.owned : !coin.owned); 
+        
+        return matchText && matchCountry && matchYear && matchStatus;
     });
-    renderGrid(filtered); calculateStats();
+    renderGrid(filtered); 
+    calculateStats();
 }
+
 
 function calculateStats() {
     var ownedCoins = localCoins.filter(function(c){ return c.owned; }); document.getElementById("stat-count").textContent = ownedCoins.length; document.getElementById("stat-total").textContent = localCoins.length;
