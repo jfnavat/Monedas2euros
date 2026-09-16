@@ -110,7 +110,7 @@
 
         window.addEventListener("DOMContentLoaded", function() { inicializarApp(); });
         function showLoading(show) { document.getElementById("loading").style.display = show ? "flex" : "none"; }
-        function inicializarApp() {
+       function inicializarApp() {
     showLoading(true);
     if (typeof google !== "undefined" && google.script && google.script.run) {
         google.script.run.withSuccessHandler(function(data){ 
@@ -130,7 +130,13 @@
     }
 }
 
-        function cargarRespaldoLocal() { var saved = localStorage.getItem("euroNumisData"); if (saved) localCoins = JSON.parse(saved); renderApp(); showLoading(false); }
+function cargarRespaldoLocal() { 
+    var saved = localStorage.getItem("euroNumisData"); 
+    if (saved) localCoins = JSON.parse(saved); 
+    renderApp(); 
+    showLoading(false); 
+}
+
         function renderApp() { populateFilterOptions(); filterCoins(); }
         function populateFilterOptions() {
             var countrySelect = document.getElementById("filter-country"); var yearSelect = document.getElementById("filter-year");
