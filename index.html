@@ -165,18 +165,23 @@
         function abrirFormularioNuevo() { document.getElementById("new-coin-form").reset(); document.getElementById("edit-id").value = ""; document.getElementById("edit-image-base64").value = ""; document.getElementById("form-title").textContent = "Añadir Nueva Moneda"; document.getElementById("admin-form").style.display = "block"; window.scrollTo({ top: 0, behavior: 'smooth' }); }
         function abrirFormularioEditar(id) { var coin = localCoins.find(function(c){ return c.id === id; }); if (!coin) return; document.getElementById("edit-id").value = coin.id; document.getElementById("add-country").value = coin.country; document.getElementById("add-year").value = coin.year; document.getElementById("add-theme").value = coin.theme; document.getElementById("add-mintage").value = coin.mintage || ""; document.getElementById("add-type").value = coin.type; document.getElementById("add-price").value = coin.price; document.getElementById("edit-image-base64").value = coin.image || ""; document.getElementById("form-title").textContent = "Editar Moneda"; document.getElementById("admin-form").style.display = "block"; window.scrollTo({ top: 0, behavior: "smooth" }); }
 
-        function convertImageToBase64() {
-    var files = document.getElementById("add-image").files;
+       function convertImageToBase64() {
+    var input = document.getElementById("add-image");
+    var files = input.files;
     if (!files || files.length === 0) {
         document.getElementById("edit-image-base64").value = "";
         return;
     }
     var reader = new FileReader();
     reader.onload = function(e) {
-        document.getElementById("edit-image-base64").value = e.target.result;
+        if (e.target && e.target.result) {
+            document.getElementById("edit-image-base64").value = e.target.result;
+            console.log("Imagen procesada con éxito.");
+        }
     };
-    reader.readAsDataURL(files);
+    reader.readAsDataURL(files[0]);
 }
+
 
 
        function saveCoin(event) { 
