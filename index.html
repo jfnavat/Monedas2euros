@@ -121,12 +121,20 @@
             renderApp(); 
             showLoading(false); 
         }).obtenerMonedas();
-    } else if (SCRIPT_URL !== "") {
-        fetch(SCRIPT_URL, { mode: "no-cors" })
-            .then(function() { cargarRespaldoLocal(); })
-            .catch(function() { cargarRespaldoLocal(); });
+    } if (SCRIPT_URL !== "") {
+        fetch(SCRIPT_URL, { 
+            method: "POST", 
+            mode: "no-cors", 
+            headers: { "Content-Type": "application/json" }, 
+            body: JSON.stringify(coinData) 
+        });
+        // Forzar guardado local inmediato para que lo veas en pantalla mientras viaja a la nube
+        persistData();
+        document.getElementById("admin-form").style.display = "none";
+        renderApp();
+        showLoading(false);
     } else { 
-        cargarRespaldoLocal(); 
+        fallbackLocalSave(coinData); 
     }
 }
 
