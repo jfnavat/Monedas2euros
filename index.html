@@ -231,7 +231,7 @@
 
         function fallbackLocalSave(coinData) { persistData(); document.getElementById("admin-form").style.display = "none"; renderApp(); showLoading(false); }
 
-      function deleteCoin(id) {
+    function deleteCoin(id) {
     if (!confirm("¿Eliminar moneda?")) return;
     showLoading(true);
     
@@ -241,7 +241,7 @@
     renderApp();
     showLoading(false);
 
-    // 2. Enviar orden de eliminación forzada mediante método POST seguro
+    // 2. Enviar orden de eliminación mediante método POST unificado
     if (SCRIPT_URL !== "") {
         fetch(SCRIPT_URL, { 
             method: "POST", 
@@ -252,7 +252,6 @@
     }
 }
 
-}
 
 
         
