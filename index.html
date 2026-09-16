@@ -183,45 +183,49 @@
     reader.readAsDataURL(files);
 }
 
-        function saveCoin(event) { 
-            event.preventDefault(); 
-            showLoading(true); 
-            var id = document.getElementById("edit-id").value; 
-            var isEdit = id && id.trim() !== ""; 
-            var currentCoin = isEdit ? localCoins.find(function(c){ return c.id === id; }) : null; 
-            
-            var coinData = { 
-                id: isEdit ? id : Date.now().toString(), 
-                country: document.getElementById("add-country").value.trim(), 
-                year: parseInt(document.getElementById("add-year").value), 
-                theme: document.getElementById("add-theme").value.trim(), 
-                mintage: document.getElementById("add-mintage").value ? parseInt(document.getElementById("add-mintage").value) : "", 
-                type: document.getElementById("add-type").value, 
-                price: parseFloat(document.getElementById("add-price").value) || 0, 
-                image: document.getElementById("edit-image-base64").value || "", 
-                owned: isEdit ? currentCoin.owned : false, 
-                condition: isEdit ? currentCoin.condition : "UNC", 
-                notes: isEdit ? currentCoin.notes : "" 
-            }; 
-            
-            if (isEdit) { 
-                var index = localCoins.findIndex(function(c){ return c.id === id; }); 
-                if (index !== -1) localCoins[index] = coinData; 
-            } else { 
-                localCoins.push(coinData); 
-            } 
-            
-            // 1. PASO LOCAL: Guardar en memoria y pintar en pantalla inmediatamente
-            persistData(); 
-            document.getElementById("admin-form").style.display = "none"; 
-            renderApp(); 
-            showLoading(false); 
+       function saveCoin(event) { 
+    event.preventDefault(); 
+    showLoading(true); 
+    var id = document.getElementById("edit-id").value; 
+    var isEdit = id && id.trim() !== ""; 
+    var currentCoin = isEdit ? localCoins.find(function(c){ return c.id === id; }) : null; 
+    
+    var coinData = { 
+        id: isEdit ? id : Date.now().toString(), 
+        country: document.getElementById("add-country").value.trim(), 
+        year: parseInt(document.getElementById("add-year").value), 
+        theme: document.getElementById("add-theme").value.trim(), 
+        mintage: document.getElementById("add-mintage").value ? parseInt(document.getElementById("add-mintage").value) : "", 
+        type: document.getElementById("add-type").value, 
+        price: parseFloat(document.getElementById("add-price").value) || 0, 
+        image: document.getElementById("edit-image-base64").value || "", 
+        owned: isEdit ? currentCoin.owned : false, 
+        condition: isEdit ? currentCoin.condition : "UNC", 
+        notes: isEdit ? currentCoin.notes : "" 
+    }; 
+    
+    if (isEdit) { 
+        var index = localCoins.findIndex(function(c){ return c.id === id; }); 
+        if (index !== -1) localCoins[index] = coinData; 
+    } else { 
+        localCoins.push(coinData); 
+    } 
+    
+    persistData(); 
+    document.getElementById("admin-form").style.display = "none"; 
+    renderApp(); 
+    showLoading(false); 
 
-            // 2. PASO REMOTO: Lanzar el envío directo a Google Sheets sin bloquear la visualización
-            if (SCRIPT_URL !== "") { 
-                navigator.sendBeacon ? navigator.sendBeacon(SCRIPT_URL, JSON.stringify(coinData)) : fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(coinData) });
-            } 
-        }
+    if (SCRIPT_URL !== "") { 
+        fetch(SCRIPT_URL, { 
+            method: "POST", 
+            mode: "no-cors", 
+            headers: { "Content-Type": "application/json" }, 
+            body: JSON.stringify(coinData) 
+        }).catch(function(e){ console.log("Sincronizando..."); });
+    } 
+}
+
 
         function fallbackLocalSave(coinData) { persistData(); document.getElementById("admin-form").style.display = "none"; renderApp(); showLoading(false); }
         function deleteCoin(id) { if (!confirm("¿Eliminar moneda?")) return; showLoading(true); localCoins = localCoins.filter(function(c){ return c.id !== id; }); persistData(); renderApp(); showLoading(false); }
