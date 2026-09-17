@@ -4,9 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Colección de 2 Euros Pro</title>
+    <title>Colección de 2 Euros ro</title>
     <script src="https://google.com" async></script>
-
 
     <style>
         :root {
@@ -379,76 +378,71 @@ function exportToExcel() {
     // Recuerda que este Client ID debe ser el generado en Google Cloud Console para tu URL de GitHub
     const GOOGLE_CLIENT_ID = "29795517584-h9dvr3jkthofsr3fua3i50sbdkgkd2vv.apps.googleusercontent.com";
 
-   window.inicializarGoogle = function() {
-    // 1. Mensaje de control para confirmar que la función responde
-    console.log("¡La función inicializarGoogle se está ejecutando!");
-    alert("Ejecutando inicio de Google..."); // <-- Si ves esta alerta, el código está vivo
-
-    // 2. Inicializamos el sistema de Google con tu Client ID
+  // Esta función se ejecuta cuando la librería externa de Google termina de descargarse
+window.inicializarGoogle = function() {
+    console.log("Inicializando Google Identity Services...");
+    
     google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: verificarUsuarioPropietario, 
         auto_select: true 
     });
 
-    // 3. Esperamos una fracción de segundo para asegurarnos de que el HTML esté listo
-    setTimeout(() => {
-        const contenedor = document.getElementById("botonGoogleContainer");
-        
-        if (contenedor) {
-            // Forzamos al contenedor a tener espacio visible en la pantalla
-            contenedor.style.minWidth = "200px";
-            contenedor.style.minHeight = "40px";
-            contenedor.style.display = "block";
+    const contenedor = document.getElementById("botonGoogleContainer");
+    if (contenedor) {
+        // Aseguramos propiedades de bloque visibles antes de pintar el renderizado
+        contenedor.style.display = "block";
+        contenedor.style.margin = "10px 0";
 
-            // Le ordenamos a Google renderizar el botón físico
-            google.accounts.id.renderButton(
-                contenedor,
-                { theme: "outline", size: "large", type: "standard", text: "signin_with" }
-            );
-            console.log("El botón de Google ha sido enviado a renderizar.");
-        } else {
-            console.error("ERROR: No se encontró el elemento HTML con id 'botonGoogleContainer'");
-        }
-    }, 300);
+        // Ordenamos pintar el diseño oficial estándar
+        google.accounts.id.renderButton(
+            contenedor,
+            { theme: "outline", size: "large", type: "standard", text: "signin_with" }
+        );
+        console.log("Llamada a renderButton completada.");
+    } else {
+        console.error("No se encontró el contenedor HTML 'botonGoogleContainer'.");
+    }
 
-    // Intenta además el inicio automático flotante
     google.accounts.id.prompt(); 
 };
 
-
-// Función que procesa los datos y decide si muestra los botones
+// Evalúa si el correo coincide
 function verificarUsuarioPropietario(response) {
+    console.log("Token recibido de Google. Procesando datos...");
     const payload = parseJwt(response.credential);
     const emailLogueado = payload.email;
+
     const botonesAdmin = document.querySelectorAll('[data-admin="true"]');
 
     if (emailLogueado === CORREO_PROPIETARIO) {
         botonesAdmin.forEach(boton => {
             boton.style.display = 'inline-block';
         });
-        console.log("Acceso de propietario concedido.");
+        // Escondemos el botón de Google al estar logueados
+        const btnGoogle = document.getElementById("botonGoogleContainer");
+        if (btnGoogle) btnGoogle.style.display = 'none';
+        console.log("Acceso concedido al propietario.");
     } else {
         botonesAdmin.forEach(boton => {
             boton.style.display = 'none';
         });
-        console.warn("Usuario común detectado.");
+        alert("La cuenta de Google (" + emailLogueado + ") no está autorizada.");
     }
 }
 
+// Decodificador seguro universal sin errores de sintaxis
 function parseJwt(token) {
     try {
-        // CORRECCIÓN: Google envía 3 partes separadas por puntos; el contenido útil es la parte 1 [1]
-        const base64Url = token.split('.')[1]; 
+        const base64Url = token.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
         const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
         return JSON.parse(jsonPayload);
     } catch (error) {
-        console.error("Error al decodificar la identidad", error);
+        console.error("Error al decodificar la identidad:", error);
         return {};
     }
 }
-
 </script>
