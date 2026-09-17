@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Colección de 2 Euros Pr</title>
-
+    <title>Colección de 2 Euros Pro</title>
     <script src="https://google.com" async></script>
+
 
     <style>
         :root {
@@ -60,6 +60,37 @@
         .not-owned { filter: grayscale(0.7); opacity: 0.65; }
         .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); color: white; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; z-index: 1000; display: none; font-weight: bold; }
     </style>
+
+     <script>
+        const CORREO_PROPIETARIO = "jfnavat@gmail.com"; 
+         const GOOGLE_CLIENT_ID = "29795517584-h9dvr3jkthofsr3fua3i50sbdkgkd2vv.apps.googleusercontent.com";
+
+        window.inicializarGoogle = function() {
+            console.log("¡Google Identity Services ha llamado a inicializarGoogle con éxito!");
+            
+            google.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                callback: verificarUsuarioPropietario, 
+                auto_select: true 
+            });
+
+            // Forzamos a que el contenedor tenga espacio visual
+            const contenedor = document.getElementById("botonGoogleContainer");
+            if (contenedor) {
+                contenedor.style.display = "block";
+                google.accounts.id.renderButton(
+                    contenedor,
+                    { theme: "outline", size: "large", text: "signin_with" }
+                );
+            }
+            
+            google.accounts.id.prompt(); 
+        };
+    </script>
+
+    <!-- 2. LLAMAMOS A LA LIBRERÍA DE GOOGLE DESPUÉS DE DEFINIR LA FUNCIÓN -->
+    <script src="https://google.com" async></script>
+    
 </head>
 <body>
     <div class="loading-overlay" id="loading">💾 Sincronizando datos...</div>
