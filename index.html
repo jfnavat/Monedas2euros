@@ -188,7 +188,6 @@
     calculateStats();
 }
 
-
         function calculateStats() {
             var ownedCoins = localCoins.filter(function(c){ return c.owned; }); document.getElementById("stat-count").textContent = ownedCoins.length; document.getElementById("stat-total").textContent = localCoins.length;
             var totalValue = ownedCoins.reduce(function(acc,curr){ return acc + (parseFloat(curr.price) || 0); }, 0); document.getElementById("stat-value").textContent = totalValue.toFixed(2) + " €";
@@ -334,7 +333,7 @@ function exportToExcel() {
 }
 </script>
 
-    <script>
+<script>
   // Inyectamos la variable directamente desde Google Apps Script a JavaScript
   const esPropietario = <?= isOwner ?>;
 
