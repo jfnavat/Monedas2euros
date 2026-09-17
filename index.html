@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Colección de 2 Euros Pro5</title>
+    <title>Colección de 2 Euros Pro6</title>
     <script src="https://google.com" async></script>
     <link rel="stylesheet" href="css/styles.css?v=2">
 
@@ -281,43 +281,48 @@
                 container.appendChild(card);
             });
         }
-                function updateCardMeta(id, prop, val) { var index = localCoins.findIndex(function(c){ return c.id === id; }); if (index !== -1) { localCoins[index][prop] = val; persistData(); } }
+        
+        function updateCardMeta(id, prop, val) { var index = localCoins.findIndex(function(c){ return c.id === id; }); if (index !== -1) { localCoins[index][prop] = val; persistData(); } }
         function toggleOwnership(id, chk) { var index = localCoins.findIndex(function(c){ return c.id === id; }); if (index !== -1) { localCoins[index].owned = chk; persistData(); filterCoins(); } }
         function abrirFormularioNuevo() { 
             document.getElementById("new-coin-form").reset(); 
             document.getElementById("edit-id").value = ""; 
             document.getElementById("edit-image-base64").value = ""; 
-            document.getElementById("form-title").textContent = "Añadir Nueva Moneda"; document.getElementById("admin-form").style.display = "block"; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+            document.getElementById("form-title").textContent = "Añadir Nueva Moneda"; 
+            document.getElementById("admin-form").style.display = "block"; 
+            window.scrollTo({ top: 0, behavior: 'smooth' }); 
+        }
+        
        function abrirFormularioEditar(id, boton) {
-    // 1. Validar seguridad en el frontend usando el atributo data-admin del botón
-    if (!boton || boton.getAttribute("data-admin") !== "true") {
-        console.error("Acceso denegado: No tienes permisos de administrador.");
-        alert("No tienes permisos para realizar esta acción.");
-        return;
-    }
+            // 1. Validar seguridad en el frontend usando el atributo data-admin del botón
+            if (!boton || boton.getAttribute("data-admin") !== "true") {
+                console.error("Acceso denegado: No tienes permisos de administrador.");
+                alert("No tienes permisos para realizar esta acción.");
+                return;
+            }
 
-    // 2. Buscar el elemento en la base de datos local
-    var coin = localCoins.find(function(c){ 
-        return c.id === id; 
-    });
-    if (!coin) return;
-
-    // 3. Rellenar el formulario con los datos de la moneda
-    document.getElementById("edit-id").value = coin.id;
-    document.getElementById("add-country").value = coin.country;
-    document.getElementById("add-year").value = coin.year;
-    document.getElementById("add-theme").value = coin.theme;
-    document.getElementById("add-mintage").value = coin.mintage || "";
-    document.getElementById("add-type").value = coin.type;
-    document.getElementById("add-price").value = coin.price;
-    document.getElementById("edit-image-base64").value = coin.image || "";
-
-    // 4. Mostrar el formulario visualmente
-    document.getElementById("form-title").textContent = "Editar Moneda";
-    document.getElementById("admin-form").style.display = "block";
-    
-    window.scrollTo({ top: 0, behavior: "smooth" });
-}
+            // 2. Buscar el elemento en la base de datos local
+            var coin = localCoins.find(function(c){ 
+                return c.id === id; 
+            });
+            if (!coin) return;
+        
+            // 3. Rellenar el formulario con los datos de la moneda
+            document.getElementById("edit-id").value = coin.id;
+            document.getElementById("add-country").value = coin.country;
+            document.getElementById("add-year").value = coin.year;
+            document.getElementById("add-theme").value = coin.theme;
+            document.getElementById("add-mintage").value = coin.mintage || "";
+            document.getElementById("add-type").value = coin.type;
+            document.getElementById("add-price").value = coin.price;
+            document.getElementById("edit-image-base64").value = coin.image || "";
+        
+            // 4. Mostrar el formulario visualmente
+            document.getElementById("form-title").textContent = "Editar Moneda";
+            document.getElementById("admin-form").style.display = "block";
+            
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
 
       function convertImageToBase64() {
     var files = document.getElementById("add-image").files;
@@ -397,7 +402,6 @@ function saveCoin(event) {
     } 
 }
 
-
 function fallbackLocalSave(coinData) { 
     persistData(); 
     document.getElementById("admin-form").style.display = "none"; 
@@ -406,6 +410,13 @@ function fallbackLocalSave(coinData) {
 }
 
 function deleteCoin(id) {
+    // 1. Validar seguridad en el frontend usando el atributo data-admin del botón
+    if (!boton || boton.getAttribute("data-admin") !== "true") {
+        console.error("Acceso denegado: No tienes permisos de administrador.");
+        alert("No tienes permisos para realizar esta acción.");
+        return;
+    }
+    
     if (!confirm("¿Eliminar moneda?")) return;
     showLoading(true);
     
