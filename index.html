@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Colección de 2 Euros Pro</title>
+     <script src="https://google.com" async defer></script>
+    
     <style>
         :root {
             --primary: #1e3a8a; --secondary: #eab308; --success: #16a34a; --danger: #dc2626;
@@ -342,6 +344,64 @@ function exportToExcel() {
       el.style.display = 'inline-block'; // o 'block' según tu diseño
     });
   }
+
+ // 1. Define tu correo de propietario
+    const CORREO_PROPIETARIO = "jfnavat@gmail.com"; 
+    const GOOGLE_CLIENT_ID = "17foW_rtEz8eIZkXdmoVL9gmMMciKPQlg4JmVn1e87mHVsjB9bnT7j9Az";
+
+    window.onload = function () {
+        // Inicializamos el cliente de Google Identity Services
+        google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: verificarUsuarioPropietario, // Al responder, evalúa al usuario
+            auto_select: true // Intenta loguearte automáticamente sin hacer clic si ya usas Google
+        });
+
+        // Lanza la petición silenciosa en segundo plano al cargar la página
+        google.accounts.id.prompt(); 
+    };
+
+    // Función que procesa los datos y decide si muestra los botones
+    function verificarUsuarioPropietario(response) {
+        // Decodificamos el token seguro que envía Google
+        const payload = parseJwt(response.credential);
+        const emailLogueado = payload.email;
+
+        // Buscamos tus dos botones de administrador
+        const botonesAdmin = document.querySelectorAll('[data-admin="true"]');
+
+        // VALIDACIÓN CRÍTICA: ¿Es exactamente el dueño de la cuenta?
+        if (emailLogueado === CORREO_PROPIETARIO) {
+            // SÓLO si coincide el correo, cambiamos el display de 'none' a visible
+            botonesAdmin.forEach(boton => {
+                boton.style.display = 'inline-block';
+            });
+            console.log("Acceso de propietario concedido.");
+        } else {
+            // Si es otra cuenta de Google, nos aseguramos de que sigan ocultos
+            botonesAdmin.forEach(boton => {
+                boton.style.display = 'none';
+            });
+            console.warn("Usuario común detectado. Los botones permanecen bloqueados.");
+        }
+    }
+
+    // Decodificador seguro para leer el email dentro del token de Google
+    function parseJwt(token) {
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        } catch (error) {
+            console.error("Error al decodificar la identidad", error);
+            return {};
+        }
+    }
+
+        
 </script>
 
 </body>
