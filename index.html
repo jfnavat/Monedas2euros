@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Colección de 2 Euros Pro v1.2</title>
+    <title>Colección de 2 Euros Pro v1.3</title>
     <script src="https://google.com" async></script>
     <link rel="stylesheet" href="css/styles.css?v=2">
 
@@ -228,57 +228,55 @@
         showLoading(false);
     }
 }
-
-
-        //function renderApp() { populateFilterOptions(); filterCoins(); }
+   //function renderApp() { populateFilterOptions(); filterCoins(); }
 
         function renderApp() {
-    // 1. Mantenemos intacta tu lógica original de filtros y selectores
-    populateFilterOptions(); 
-    filterCoins(); // <-- Esta función procesa los filtros y actualiza el array de resultados
-
-    const grid = document.querySelector(".coins-grid");
-    if (!grid) return;
-    grid.innerHTML = "";
-
-    // USAMOS EL ARRAY FILTRADO: Si filterCoins guarda el resultado en 'filteredCoins', usa esa.
-    // Si tu código usa otra variable para los resultados filtrados, cambia 'filteredCoins' por su nombre.
-    const fuenteMonedas = (typeof filteredCoins !== "undefined") ? filteredCoins : localCoins;
-
-    // 2. Calcular índices matemáticos basados en la página activa
-    const startIndex = (currentPage - 1) * coinsPerPage;
-    const endIndex = startIndex + coinsPerPage;
-    
-    // 3. Extraer solo las 8 monedas recortadas de la búsqueda actual
-    const coinsToRender = fuenteMonedas.slice(startIndex, endIndex);
-
-    // 4. Renderizar el bloque de la hoja actual
-    coinsToRender.forEach(function(coin) {
-        // --- AQUÍ COMIENZA TU PROPIO CÓDIGO INTERNO QUE YA TENÍAS ---
-        var card = document.createElement("div");
-        card.className = "coin-card";
+            // 1. Mantenemos intacta tu lógica original de filtros y selectores
+            populateFilterOptions(); 
+            filterCoins(); // <-- Esta función procesa los filtros y actualiza el array de resultados
         
-        // Verificamos si la moneda está marcada como "no tenida" para aplicar opacidad
-        if (!coin.owned) { card.classList.add("not-owned"); }
+            const grid = document.querySelector(".coins-grid");
+            if (!grid) return;
+            grid.innerHTML = "";
         
-        var imgHTML = coin.image ? "<img src='" + coin.image + "' alt='Moneda'>" : "<span class='no-img-text'>Sin imagen</span>";
-        var selectUNC = coin.condition === "UNC" ? "selected" : "";
-        var selectXF = coin.condition === "XF" ? "selected" : "";
-        var selectVF = coin.condition === "VF" ? "selected" : "";
-        var checkOwned = coin.owned ? "checked" : "";
-
-        // Línea unificada con los colores corregidos (Editar Verde, Borrar Rojo) y parámetro 'this'
-        card.innerHTML = "<div class='coin-img-container'><span class='coin-badge badge-" + coin.type + "'>" + coin.type.toUpperCase() + "</span>" + imgHTML + "</div><div class='coin-info'><div class='coin-country-year'>" + coin.country + " • " + coin.year + "</div><h2 class='coin-theme'>" + coin.theme + "</h2><div class='coin-mintage'>" + (coin.mintage ? "Acuñación: " + parseInt(coin.mintage).toLocaleString() : "Acuñación: N/A") + "</div><div class='coin-meta'><div class='price-tag'>Valor: " + (parseFloat(coin.price) || 0).toFixed(2) + " €</div><div class='meta-box'><label>Conservación</label><select onchange='updateCardMeta(\"" + coin.id + "\", \"condition\", this.value)'><option value='UNC' " + selectUNC + ">UNC</option><option value='XF' " + selectXF + ">XF</option><option value='VF' " + selectVF + ">VF</option></select></div><div class='meta-box'><label>Notas</label><input type='text' value='" + (coin.notes || "") + "' onchange='updateCardMeta(\"" + coin.id + "\", \"notes\", this.value\")'></div><label class='ownership-toggle'><input type='checkbox' " + checkOwned + " onchange='toggleOwnership(\"" + coin.id + "\", this.checked)'><span>¿La tengo?</span></label><div class='card-actions'><button class='btn-add btn-edit-green' data-admin='true' onclick='abrirFormularioEditar(\"" + coin.id + "\", this)'>✏️ Editar</button></div></div></div>";
-
-        //<button class='btn-add btn-delete-red' data-admin='true' onclick='deleteCoin(\"" + coin.id + "\", this)'>🗑️ Borrar</button>
+            // USAMOS EL ARRAY FILTRADO: Si filterCoins guarda el resultado en 'filteredCoins', usa esa.
+            // Si tu código usa otra variable para los resultados filtrados, cambia 'filteredCoins' por su nombre.
+            const fuenteMonedas = (typeof filteredCoins !== "undefined") ? filteredCoins : localCoins;
         
-        grid.appendChild(card);
-        // --- AQUÍ TERMINA TU CÓDIGO INTERNO ---
-    });
-
-    // 5. Dibujar los controles de navegación abajo de la cuadrícula enviando el array correcto
-    renderPaginationControls(fuenteMonedas);
-}
+            // 2. Calcular índices matemáticos basados en la página activa
+            const startIndex = (currentPage - 1) * coinsPerPage;
+            const endIndex = startIndex + coinsPerPage;
+            
+            // 3. Extraer solo las 8 monedas recortadas de la búsqueda actual
+            const coinsToRender = fuenteMonedas.slice(startIndex, endIndex);
+        
+            // 4. Renderizar el bloque de la hoja actual
+            coinsToRender.forEach(function(coin) {
+                // --- AQUÍ COMIENZA TU PROPIO CÓDIGO INTERNO QUE YA TENÍAS ---
+                var card = document.createElement("div");
+                card.className = "coin-card";
+                
+                // Verificamos si la moneda está marcada como "no tenida" para aplicar opacidad
+                if (!coin.owned) { card.classList.add("not-owned"); }
+                
+                var imgHTML = coin.image ? "<img src='" + coin.image + "' alt='Moneda'>" : "<span class='no-img-text'>Sin imagen</span>";
+                var selectUNC = coin.condition === "UNC" ? "selected" : "";
+                var selectXF = coin.condition === "XF" ? "selected" : "";
+                var selectVF = coin.condition === "VF" ? "selected" : "";
+                var checkOwned = coin.owned ? "checked" : "";
+        
+                // Línea unificada con los colores corregidos (Editar Verde, Borrar Rojo) y parámetro 'this'
+                card.innerHTML = "<div class='coin-img-container'><span class='coin-badge badge-" + coin.type + "'>" + coin.type.toUpperCase() + "</span>" + imgHTML + "</div><div class='coin-info'><div class='coin-country-year'>" + coin.country + " • " + coin.year + "</div><h2 class='coin-theme'>" + coin.theme + "</h2><div class='coin-mintage'>" + (coin.mintage ? "Acuñación: " + parseInt(coin.mintage).toLocaleString() : "Acuñación: N/A") + "</div><div class='coin-meta'><div class='price-tag'>Valor: " + (parseFloat(coin.price) || 0).toFixed(2) + " €</div><div class='meta-box'><label>Conservación</label><select onchange='updateCardMeta(\"" + coin.id + "\", \"condition\", this.value)'><option value='UNC' " + selectUNC + ">UNC</option><option value='XF' " + selectXF + ">XF</option><option value='VF' " + selectVF + ">VF</option></select></div><div class='meta-box'><label>Notas</label><input type='text' value='" + (coin.notes || "") + "' onchange='updateCardMeta(\"" + coin.id + "\", \"notes\", this.value\")'></div><label class='ownership-toggle'><input type='checkbox' " + checkOwned + " onchange='toggleOwnership(\"" + coin.id + "\", this.checked)'><span>¿La tengo?</span></label><div class='card-actions'><button class='btn-add btn-edit-green' data-admin='true' onclick='abrirFormularioEditar(\"" + coin.id + "\", this)'>✏️ Editar</button></div></div></div>";
+        
+                //<button class='btn-add btn-delete-red' data-admin='true' onclick='deleteCoin(\"" + coin.id + "\", this)'>🗑️ Borrar</button>
+                
+                grid.appendChild(card);
+                // --- AQUÍ TERMINA TU CÓDIGO INTERNO ---
+            });
+        
+            // 5. Dibujar los controles de navegación abajo de la cuadrícula enviando el array correcto
+            renderPaginationControls(fuenteMonedas);
+        }
 
 
         function populateFilterOptions() {
@@ -294,32 +292,33 @@
         }
 
         function filterCoins() {
-    var searchText = document.getElementById("search-theme").value.toLowerCase(); 
-    var countryFilter = document.getElementById("filter-country").value; 
-    var yearFilter = document.getElementById("filter-year").value; 
-    var statusFilter = document.getElementById("filter-status").value;
-    
-    var filtered = localCoins.filter(function(coin){
-        // Convierte el tema y país a texto estrictamente para evitar que celdas vacías o números rompan la web
-        var temaTxt = (coin.theme || "").toString().toLowerCase();
-        var paisTxt = (coin.country || "").toString().toLowerCase();
-        
-        var matchText = temaTxt.indexOf(searchText) !== -1 || paisTxt.indexOf(searchText) !== -1; 
-        var matchCountry = countryFilter === "" || (coin.country || "").toString() === countryFilter; 
-        var matchYear = yearFilter === "" || (coin.year || "").toString() === yearFilter; 
-        var matchStatus = statusFilter === "" || (statusFilter === "owned" ? coin.owned : !coin.owned); 
-        
-        return matchText && matchCountry && matchYear && matchStatus;
-    });
-    renderGrid(filtered); 
-    calculateStats();
-}
+            var searchText = document.getElementById("search-theme").value.toLowerCase(); 
+            var countryFilter = document.getElementById("filter-country").value; 
+            var yearFilter = document.getElementById("filter-year").value; 
+            var statusFilter = document.getElementById("filter-status").value;
+            
+            var filtered = localCoins.filter(function(coin){
+                // Convierte el tema y país a texto estrictamente para evitar que celdas vacías o números rompan la web
+                var temaTxt = (coin.theme || "").toString().toLowerCase();
+                var paisTxt = (coin.country || "").toString().toLowerCase();
+                
+                var matchText = temaTxt.indexOf(searchText) !== -1 || paisTxt.indexOf(searchText) !== -1; 
+                var matchCountry = countryFilter === "" || (coin.country || "").toString() === countryFilter; 
+                var matchYear = yearFilter === "" || (coin.year || "").toString() === yearFilter; 
+                var matchStatus = statusFilter === "" || (statusFilter === "owned" ? coin.owned : !coin.owned); 
+                
+                return matchText && matchCountry && matchYear && matchStatus;
+            });
+            renderGrid(filtered); 
+            calculateStats();
+        }
 
         function calculateStats() {
             var ownedCoins = localCoins.filter(function(c){ return c.owned; }); document.getElementById("stat-count").textContent = ownedCoins.length; document.getElementById("stat-total").textContent = localCoins.length;
             var totalValue = ownedCoins.reduce(function(acc,curr){ return acc + (parseFloat(curr.price) || 0); }, 0); document.getElementById("stat-value").textContent = totalValue.toFixed(2) + " €";
         }
 
+        /***************************************************************/
         function renderGrid(coins) {
             var container = document.getElementById("coins-container"); container.innerHTML = "";
             if (coins.length === 0) { container.innerHTML = "<div style='grid-column:1/-1;text-align:center;padding:40px;color:#64748b;'>No hay monedas.</div>"; return; }
@@ -328,12 +327,11 @@
                 var imgHTML = coin.image ? "<img src='" + coin.image + "' alt='" + coin.theme + "'>" : "<span class='no-img-text'>Sin fotografía</span>";
                 var selectUNC = coin.condition === "UNC" ? "selected" : ""; var selectXF = coin.condition === "XF" ? "selected" : ""; var selectVF = coin.condition === "VF" ? "selected" : ""; var checkOwned = coin.owned ? "checked" : "";
                 //card.innerHTML = "<div class='coin-img-container'><span class='coin-badge badge-" + coin.type + "'>" + coin.type.toUpperCase() + "</span>" + imgHTML + "</div><div class='coin-info'><div class='coin-country-year'>" + coin.country + " • " + coin.year + "</div><h2 class='coin-theme'>" + coin.theme + "</h2><div class='coin-mintage'>" + (coin.mintage ? "Acuñación: " + parseInt(coin.mintage).toLocaleString() : "Acuñación: N/A") + "</div><div class='coin-meta'><div class='price-tag'>Valor: " + (parseFloat(coin.price) || 0).toFixed(2) + " €</div><div class='meta-box'><label>Conservación</label><select onchange='updateCardMeta(\"" + coin.id + "\", \"condition\", this.value)'><option value='UNC' " + selectUNC + ">UNC</option><option value='XF' " + selectXF + ">XF</option><option value='VF' " + selectVF + ">VF</option></select></div><div class='meta-box'><label>Notas</label><input type='text' value='" + (coin.notes || "") + "' onchange='updateCardMeta(\"" + coin.id + "\", \"notes\", this.value\")'></div><label class='ownership-toggle'><input type='checkbox' " + checkOwned + " onchange='toggleOwnership(\"" + coin.id + "\", this.checked)'><span>¿La tengo?</span></label><div class='card-actions'><button class='btn-edit-green' data-admin='true' onclick='abrirFormularioEditar(\"" + coin.id + "\")'>✏️ Editar</button><button class='btn-delete-red' data-admin='true' onclick='deleteCoin(\"" + coin.id + "\")'>🗑️ Borrar</button></div></div></div>";
-                //card.innerHTML = "<div class='coin-img-container'><span class='coin-badge badge-" + coin.type + "'>" + coin.type.toUpperCase() + "</span>" + imgHTML + "</div><div class='coin-info'><div class='coin-country-year'>" + coin.country + " • " + coin.year + "</div><h2 class='coin-theme'>" + coin.theme + "</h2><div class='coin-mintage'>" + (coin.mintage ? "Acuñación: " + parseInt(coin.mintage).toLocaleString() : "Acuñación: N/A") + "</div><div class='coin-meta'><div class='price-tag'>Valor: " + (parseFloat(coin.price) || 0).toFixed(2) + " €</div><div class='meta-box'><label>Conservación</label><select onchange='updateCardMeta(\"" + coin.id + "\", \"condition\", this.value)'><option value='UNC' " + selectUNC + ">UNC</option><option value='XF' " + selectXF + ">XF</option><option value='VF' " + selectVF + ">VF</option></select></div><div class='meta-box'><label>Notas</label><input type='text' value='" + (coin.notes || "") + "' onchange='updateCardMeta(\"" + coin.id + "\", \"notes\", this.value\")'></div><label class='ownership-toggle'><input type='checkbox' " + checkOwned + " onchange='toggleOwnership(\"" + coin.id + "\", this.checked)'><span>¿La tengo?</span></label><div class='card-actions'><button class='btn-edit-green' data-admin='true' onclick='abrirFormularioEditar(\"" + coin.id + "\")'>✏️ Editar</button></div></div></div>";
+                card.innerHTML = "<div class='coin-img-container'><span class='coin-badge badge-" + coin.type + "'>" + coin.type.toUpperCase() + "</span>" + imgHTML + "</div><div class='coin-info'><div class='coin-country-year'>" + coin.country + " • " + coin.year + "</div><h2 class='coin-theme'>" + coin.theme + "</h2><div class='coin-mintage'>" + (coin.mintage ? "Acuñación: " + parseInt(coin.mintage).toLocaleString() : "Acuñación: N/A") + "</div><div class='coin-meta'><div class='price-tag'>Valor: " + (parseFloat(coin.price) || 0).toFixed(2) + " €</div><div class='meta-box'><label>Conservación</label><select onchange='updateCardMeta(\"" + coin.id + "\", \"condition\", this.value)'><option value='UNC' " + selectUNC + ">UNC</option><option value='XF' " + selectXF + ">XF</option><option value='VF' " + selectVF + ">VF</option></select></div><div class='meta-box'><label>Notas</label><input type='text' value='" + (coin.notes || "") + "' onchange='updateCardMeta(\"" + coin.id + "\", \"notes\", this.value\")'></div><label class='ownership-toggle'><input type='checkbox' " + checkOwned + " onchange='toggleOwnership(\"" + coin.id + "\", this.checked)'><span>¿La tengo?</span></label><div class='card-actions'><button class='btn-edit-green' data-admin='true' onclick='abrirFormularioEditar(\"" + coin.id + "\")'>✏️ Editar</button></div></div></div>";
 
                 //<button class='btn-delete-red' data-admin='true' onclick='deleteCoin(\"" + coin.id + "\", this)'>🗑️ Borrar</button>
 
-            
-                card.innerHTML = "<div class='coin-img-container'><span class='coin-badge badge-" + coin.type + "'>" + coin.type.toUpperCase() + "</span>" + imgHTML + "</div><div class='coin-info'><div class='coin-country-year'>" + coin.country + " • " + coin.year + "</div><h2 class='coin-theme'>" + coin.theme + "</h2><div class='coin-mintage'>" + (coin.mintage ? "Acuñación: " + parseInt(coin.mintage).toLocaleString() : "Acuñación: N/A") + "</div><div class='coin-meta'><div class='price-tag'>Valor: " + (parseFloat(coin.price) || 0).toFixed(2) + " €</div><div class='meta-box'><label>Conservación</label><select onchange='updateCardMeta(\"" + coin.id + "\", \"condition\", this.value)'><option value='UNC' " + selectUNC + ">UNC</option><option value='XF' " + selectXF + ">XF</option><option value='VF' " + selectVF + ">VF</option></select></div><div class='meta-box'><label>Notas</label><input type='text' value='" + (coin.notes || "") + "' onchange='updateCardMeta(\"" + coin.id + "\", \"notes\", this.value\")'></div><label class='ownership-toggle'><input type='checkbox' " + checkOwned + " onchange='toggleOwnership(\"" + coin.id + "\", this.checked)'><span>¿La tengo?</span></label><div class='card-actions'><button class='btn btn-add' data-admin='true' onclick='abrirFormularioEditar(\"" + coin.id + "\")'>✏️ Editar</button><button class='btn btn-add' data-admin='true' class='btn-danger' onclick='deleteCoin(\"" + coin.id + "\")'>🗑️ Borrar</button></div></div></div>";
+                //card.innerHTML = "<div class='coin-img-container'><span class='coin-badge badge-" + coin.type + "'>" + coin.type.toUpperCase() + "</span>" + imgHTML + "</div><div class='coin-info'><div class='coin-country-year'>" + coin.country + " • " + coin.year + "</div><h2 class='coin-theme'>" + coin.theme + "</h2><div class='coin-mintage'>" + (coin.mintage ? "Acuñación: " + parseInt(coin.mintage).toLocaleString() : "Acuñación: N/A") + "</div><div class='coin-meta'><div class='price-tag'>Valor: " + (parseFloat(coin.price) || 0).toFixed(2) + " €</div><div class='meta-box'><label>Conservación</label><select onchange='updateCardMeta(\"" + coin.id + "\", \"condition\", this.value)'><option value='UNC' " + selectUNC + ">UNC</option><option value='XF' " + selectXF + ">XF</option><option value='VF' " + selectVF + ">VF</option></select></div><div class='meta-box'><label>Notas</label><input type='text' value='" + (coin.notes || "") + "' onchange='updateCardMeta(\"" + coin.id + "\", \"notes\", this.value\")'></div><label class='ownership-toggle'><input type='checkbox' " + checkOwned + " onchange='toggleOwnership(\"" + coin.id + "\", this.checked)'><span>¿La tengo?</span></label><div class='card-actions'><button class='btn btn-add' data-admin='true' onclick='abrirFormularioEditar(\"" + coin.id + "\")'>✏️ Editar</button><button class='btn btn-add' data-admin='true' class='btn-danger' onclick='deleteCoin(\"" + coin.id + "\")'>🗑️ Borrar</button></div></div></div>";
                 container.appendChild(card);
             });
         }
