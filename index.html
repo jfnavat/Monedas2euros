@@ -410,13 +410,14 @@ function fallbackLocalSave(coinData) {
 }
 
 function deleteCoin(id, boton) {
-    // 1. Validar seguridad en el frontend usando el atributo data-admin del botón
+    // 1. Validar seguridad en el frontend usando el atributo data-admin del botón (Funciona igual que Editar)
     if (!boton || boton.getAttribute("data-admin") !== "true") {
         console.error("Acceso denegado: No tienes permisos de administrador.");
         alert("No tienes permisos para realizar esta acción.");
         return;
     }
     
+    // 2. Confirmación visual antes de proceder
     if (!confirm("¿Eliminar moneda?")) return;
     showLoading(true);
     
