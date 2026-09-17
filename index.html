@@ -451,21 +451,33 @@ function parseJwt(token) {
 }
 </script>
 
-    <script>
-    // CAMBIA ESTA PALABRA POR TU CLAVE SECRETA
-    const PASSWORD_SECRETO = "SofiaBB";
+   <script>
 
-    function activarAdmin() {
+    const HASH_SECRETO = "bff0a8af01c05fbd0b4c7e411ebfd9787e43d0a843f0841abb43fa9aa074069a";
+
+    async function activarAdmin() {
         const input = prompt("Introduce la contraseña de administración:");
+        if (!input) return;
+
+        // Encriptamos lo que ingresaste para compararlo con el hash guardado
+        const hashIngresado = await generarSHA256(input);
         
-        if (input === PASSWORD_SECRETO) {
-            // Si la clave es correcta, mostramos los botones
+        if (hashIngresado === HASH_SECRETO) {
             document.querySelectorAll('[data-admin="true"]').forEach(boton => {
                 boton.style.display = 'inline-block';
             });
             alert("¡Acceso concedido!");
-        } else if (input !== null) {
+        } else {
             alert("Contraseña incorrecta.");
         }
     }
+
+    // Función matemática matemática estándar para encriptar en segundos
+    async function generarSHA256(mensaje) {
+        const msgBuffer = new TextEncoder().encode(mensaje);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
 </script>
+
