@@ -65,9 +65,16 @@
     <header>
         <div class="header-title"><h1>EuroNumis (no en venta)</h1><p>Monedas de 2 euros</p></div>
         <div style="display: flex; gap: 10px;">
-    <!-- Botones ocultos por defecto esperando validación -->
+
+            <div style="display: flex; gap: 10px; align-items: center;">
+    <!-- NUEVO: Contenedor para que aparezca el botón visual de iniciar sesión con Google -->
+    <div id="botonGoogleContainer"></div>
+
+    <!-- Tus botones protegidos (permanecen ocultos) -->
     <button class="btn btn-add" data-admin="true" style="display: none;" onclick="abrirFormularioNuevo()">+ Nueva Moneda</button>
     <button class="btn btn-excel" data-admin="true" style="display: none;" onclick="exportToExcel()">📊 Exportar Excel</button>
+</div>
+
 </div>
 
         <div class="stats-panel">
