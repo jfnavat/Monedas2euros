@@ -101,9 +101,13 @@
     <!-- NUEVO: Contenedor para que aparezca el botón visual de iniciar sesión con Google -->
     <div id="botonGoogleContainer"></div>
 
-    <!-- Tus botones protegidos (permanecen ocultos) -->
+   <div style="display: flex; gap: 10px; align-items: center;">
+    <!-- Botón para activar el modo administrador pidiendo clave -->
+    <button class="btn" style="background: #64748b; color: white;" onclick="activarAdmin()">🔒 Modo Admin</button>
+
     <button class="btn btn-add" data-admin="true" style="display: none;" onclick="abrirFormularioNuevo()">+ Nueva Moneda</button>
     <button class="btn btn-excel" data-admin="true" style="display: none;" onclick="exportToExcel()">📊 Exportar Excel</button>
+</div>
 </div>
 
 </div>
@@ -445,4 +449,23 @@ function parseJwt(token) {
         return {};
     }
 }
+</script>
+
+    <script>
+    // CAMBIA ESTA PALABRA POR TU CLAVE SECRETA
+    const PASSWORD_SECRETO = "SofiaBB";
+
+    function activarAdmin() {
+        const input = prompt("Introduce la contraseña de administración:");
+        
+        if (input === PASSWORD_SECRETO) {
+            // Si la clave es correcta, mostramos los botones
+            document.querySelectorAll('[data-admin="true"]').forEach(boton => {
+                boton.style.display = 'inline-block';
+            });
+            alert("¡Acceso concedido!");
+        } else if (input !== null) {
+            alert("Contraseña incorrecta.");
+        }
+    }
 </script>
