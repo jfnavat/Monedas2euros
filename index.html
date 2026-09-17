@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Colección de 2 Euros Pro v1</title>
+    <title>Colección de 2 Euros Pro v1.1</title>
     <script src="https://google.com" async></script>
     <link rel="stylesheet" href="css/styles.css?v=2">
 
@@ -181,9 +181,12 @@
         <div class="filter-group"><label>Estado de la Colección</label><select id="filter-status" onchange="filterCoins()"><option value="">Todas las monedas</option><option value="owned">En mi poder</option><option value="not-owned">Faltantes</option></select></div>
     </section>
     <main class="coins-grid" id="coins-container"></main>
+    
     <script>
         var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzzsZAU0By1pPU8TG5_hrlNjlUVMQjZADFJrFuH3bAGq7JK66dprlxU6pL7Gfu3kan8DA/exec";
         var localCoins = [];
+        let currentPage = 1;
+        const coinsPerPage = 8;
 
         window.addEventListener("DOMContentLoaded", function() { inicializarApp(); });
         function showLoading(show) { document.getElementById("loading").style.display = show ? "flex" : "none"; }
@@ -228,7 +231,54 @@
 }
 
 
-        function renderApp() { populateFilterOptions(); filterCoins(); }
+        //function renderApp() { populateFilterOptions(); filterCoins(); }
+
+        function renderApp() {
+    // 1. Mantenemos intacta tu lógica original de filtros y selectores
+    populateFilterOptions(); 
+    filterCoins(); // <-- Esta función procesa los filtros y actualiza el array de resultados
+
+    const grid = document.querySelector(".coins-grid");
+    if (!grid) return;
+    grid.innerHTML = "";
+
+    // USAMOS EL ARRAY FILTRADO: Si filterCoins guarda el resultado en 'filteredCoins', usa esa.
+    // Si tu código usa otra variable para los resultados filtrados, cambia 'filteredCoins' por su nombre.
+    const fuenteMonedas = (typeof filteredCoins !== "undefined") ? filteredCoins : localCoins;
+
+    // 2. Calcular índices matemáticos basados en la página activa
+    const startIndex = (currentPage - 1) * coinsPerPage;
+    const endIndex = startIndex + coinsPerPage;
+    
+    // 3. Extraer solo las 8 monedas recortadas de la búsqueda actual
+    const coinsToRender = fuenteMonedas.slice(startIndex, endIndex);
+
+    // 4. Renderizar el bloque de la hoja actual
+    coinsToRender.forEach(function(coin) {
+        // --- AQUÍ COMIENZA TU PROPIO CÓDIGO INTERNO QUE YA TENÍAS ---
+        var card = document.createElement("div");
+        card.className = "coin-card";
+        
+        // Verificamos si la moneda está marcada como "no tenida" para aplicar opacidad
+        if (!coin.owned) { card.classList.add("not-owned"); }
+        
+        var imgHTML = coin.image ? "<img src='" + coin.image + "' alt='Moneda'>" : "<span class='no-img-text'>Sin imagen</span>";
+        var selectUNC = coin.condition === "UNC" ? "selected" : "";
+        var selectXF = coin.condition === "XF" ? "selected" : "";
+        var selectVF = coin.condition === "VF" ? "selected" : "";
+        var checkOwned = coin.owned ? "checked" : "";
+
+        // Línea unificada con los colores corregidos (Editar Verde, Borrar Rojo) y parámetro 'this'
+        card.innerHTML = "<div class='coin-img-container'><span class='coin-badge badge-" + coin.type + "'>" + coin.type.toUpperCase() + "</span>" + imgHTML + "</div><div class='coin-info'><div class='coin-country-year'>" + coin.country + " • " + coin.year + "</div><h2 class='coin-theme'>" + coin.theme + "</h2><div class='coin-mintage'>" + (coin.mintage ? "Acuñación: " + parseInt(coin.mintage).toLocaleString() : "Acuñación: N/A") + "</div><div class='coin-meta'><div class='price-tag'>Valor: " + (parseFloat(coin.price) || 0).toFixed(2) + " €</div><div class='meta-box'><label>Conservación</label><select onchange='updateCardMeta(\"" + coin.id + "\", \"condition\", this.value)'><option value='UNC' " + selectUNC + ">UNC</option><option value='XF' " + selectXF + ">XF</option><option value='VF' " + selectVF + ">VF</option></select></div><div class='meta-box'><label>Notas</label><input type='text' value='" + (coin.notes || "") + "' onchange='updateCardMeta(\"" + coin.id + "\", \"notes\", this.value\")'></div><label class='ownership-toggle'><input type='checkbox' " + checkOwned + " onchange='toggleOwnership(\"" + coin.id + "\", this.checked)'><span>¿La tengo?</span></label><div class='card-actions'><button class='btn-add btn-edit-green' data-admin='true' onclick='abrirFormularioEditar(\"" + coin.id + "\", this)'>✏️ Editar</button><button class='btn-add btn-delete-red' data-admin='true' onclick='deleteCoin(\"" + coin.id + "\", this)'>🗑️ Borrar</button></div></div></div>";
+        
+        grid.appendChild(card);
+        // --- AQUÍ TERMINA TU CÓDIGO INTERNO ---
+    });
+
+    // 5. Dibujar los controles de navegación abajo de la cuadrícula enviando el array correcto
+    renderPaginationControls(fuenteMonedas);
+}
+
 
         function populateFilterOptions() {
             var countrySelect = document.getElementById("filter-country"); var yearSelect = document.getElementById("filter-year");
@@ -565,5 +615,35 @@ function parseJwt(token) {
         const hashArray = Array.from(new Uint8Array(hashBuffer));
         return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
+
+       function renderPaginationControls() {
+    // Buscar si ya existe el contenedor de paginación, si no, lo crea abajo del grid
+    let paginationContainer = document.getElementById("pagination-container");
+    if (!paginationContainer) {
+        paginationContainer = document.createElement("div");
+        paginationContainer.id = "pagination-container";
+        paginationContainer.style.cssText = "display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 30px; width: 100%; grid-column: 1 / -1;";
+        document.querySelector(".coins-grid").after(paginationContainer);
+    }
+
+    const totalPages = Math.ceil(localCoins.length / coinsPerPage) || 1;
+
+    // Asegurar que la página actual no quede huérfana si se borran elementos
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    paginationContainer.innerHTML = `
+        <button class="btn btn-edit" ${currentPage === 1 ? "disabled style='opacity: 0.5; cursor: not-allowed;'" : ""} onclick="changePage(-1)">◀ Anterior</button>
+        <span style="font-weight: bold; color: var(--primary);">Página ${currentPage} de ${totalPages}</span>
+        <button class="btn btn-edit" ${currentPage === totalPages ? "disabled style='opacity: 0.5; cursor: not-allowed;'" : ""} onclick="changePage(1)">Siguiente ▶</button>
+    `;
+}
+
+// Función auxiliar para cambiar de hoja
+function changePage(direction) {
+    currentPage += direction;
+    renderApp(); // Vuelve a dibujar la app mostrando la nueva página
+    window.scrollTo({ top: document.querySelector(".filters-section").offsetTop, behavior: "smooth" });
+}
+
 </script>
 
