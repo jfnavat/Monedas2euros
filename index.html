@@ -347,23 +347,40 @@ function exportToExcel() {
     // Recuerda que este Client ID debe ser el generado en Google Cloud Console para tu URL de GitHub
     const GOOGLE_CLIENT_ID = "29795517584-h9dvr3jkthofsr3fua3i50sbdkgkd2vv.apps.googleusercontent.com";
 
-    // ESTA FUNCIÓN SE EJECUTARÁ AUTOMÁTICAMENTE CUANDO LA LIBRERÍA DE GOOGLE SE HAYA DESCARGADO
-window.inicializarGoogle = function() {
-    console.log("Librería de Google cargada con éxito.");
-    
+   window.inicializarGoogle = function() {
+    // 1. Mensaje de control para confirmar que la función responde
+    console.log("¡La función inicializarGoogle se está ejecutando!");
+    alert("Ejecutando inicio de Google..."); // <-- Si ves esta alerta, el código está vivo
+
+    // 2. Inicializamos el sistema de Google con tu Client ID
     google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: verificarUsuarioPropietario, 
         auto_select: true 
     });
 
-    // NUEVO: Esto dibuja el botón clásico de "Iniciar sesión con Google"
-    google.accounts.id.renderButton(
-        document.getElementById("botonGoogleContainer"),
-        { theme: "outline", size: "large", text: "signin_with" }
-    );
+    // 3. Esperamos una fracción de segundo para asegurarnos de que el HTML esté listo
+    setTimeout(() => {
+        const contenedor = document.getElementById("botonGoogleContainer");
+        
+        if (contenedor) {
+            // Forzamos al contenedor a tener espacio visible en la pantalla
+            contenedor.style.minWidth = "200px";
+            contenedor.style.minHeight = "40px";
+            contenedor.style.display = "block";
 
-    // Intenta además lanzar el inicio automático en segundo plano
+            // Le ordenamos a Google renderizar el botón físico
+            google.accounts.id.renderButton(
+                contenedor,
+                { theme: "outline", size: "large", type: "standard", text: "signin_with" }
+            );
+            console.log("El botón de Google ha sido enviado a renderizar.");
+        } else {
+            console.error("ERROR: No se encontró el elemento HTML con id 'botonGoogleContainer'");
+        }
+    }, 300);
+
+    // Intenta además el inicio automático flotante
     google.accounts.id.prompt(); 
 };
 
