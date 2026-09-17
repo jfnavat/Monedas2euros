@@ -62,11 +62,11 @@
     <header>
         <div class="header-title"><h1>EuroNumis (no en venta)</h1><p>Monedas de 2 euros</p></div>
         <div style="display: flex; gap: 10px;">
-             <? if (isOwner) { ?>
-            <button class="btn btn-add" onclick="abrirFormularioNuevo()">+ Nueva Moneda</button>
-            <button class="btn btn-excel" onclick="exportToExcel()">📊 Exportar Excel</button>
-             <? } ?>
-        </div>
+    <!-- Botones ocultos por defecto esperando validación -->
+    <button class="btn btn-add" data-admin="true" style="display: none;" onclick="abrirFormularioNuevo()">+ Nueva Moneda</button>
+    <button class="btn btn-excel" data-admin="true" style="display: none;" onclick="exportToExcel()">📊 Exportar Excel</button>
+</div>
+
         <div class="stats-panel">
             <p>Monedas: <span id="stat-count">0</span> / <span id="stat-total">0</span></p>
             <p>Valor total: <span id="stat-value">0.00 €</span></p>
@@ -331,5 +331,18 @@ function exportToExcel() {
     document.body.removeChild(link); 
 }
 </script>
+
+    <script>
+  // Inyectamos la variable directamente desde Google Apps Script a JavaScript
+  const esPropietario = <?= isOwner ?>;
+
+  if (esPropietario) {
+    // Si es el dueño, buscamos todos los elementos de administración y los mostramos
+    document.querySelectorAll('[data-admin="true"]').forEach(el => {
+      el.style.display = 'inline-block'; // o 'block' según tu diseño
+    });
+  }
+</script>
+
 </body>
 </html>
