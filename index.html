@@ -334,16 +334,9 @@ function exportToExcel() {
 </script>
 
 <script>
-
-  if (esPropietario) {
-    // Si es el dueño, buscamos todos los elementos de administración y los mostramos
-    document.querySelectorAll('[data-admin="true"]').forEach(el => {
-      el.style.display = 'inline-block'; // o 'block' según tu diseño
-    });
-  }
-
- // 1. Define tu correo de propietario
+    // 1. Configuración de tu cuenta propietaria
     const CORREO_PROPIETARIO = "jfnavat@gmail.com"; 
+    // Recuerda que este Client ID debe ser el generado en Google Cloud Console para tu URL de GitHub
     const GOOGLE_CLIENT_ID = "17foW_rtEz8eIZkXdmoVL9gmMMciKPQlg4JmVn1e87mHVsjB9bnT7j9Az";
 
     window.onload = function () {
@@ -397,9 +390,4 @@ function exportToExcel() {
             return {};
         }
     }
-
-        
 </script>
-
-</body>
-</html>
