@@ -357,9 +357,16 @@ window.inicializarGoogle = function() {
         auto_select: true 
     });
 
-    // Lanza la petición en segundo plano
+    // NUEVO: Esto dibuja el botón clásico de "Iniciar sesión con Google"
+    google.accounts.id.renderButton(
+        document.getElementById("botonGoogleContainer"),
+        { theme: "outline", size: "large", text: "signin_with" }
+    );
+
+    // Intenta además lanzar el inicio automático en segundo plano
     google.accounts.id.prompt(); 
 };
+
 
 // Función que procesa los datos y decide si muestra los botones
 function verificarUsuarioPropietario(response) {
